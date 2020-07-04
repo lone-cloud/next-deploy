@@ -1,0 +1,8 @@
+node_modules
+/coverage.data
+/coverage/
+.serverless
+.next
+.serverless_nextjs
+dist
+yarn-error.log

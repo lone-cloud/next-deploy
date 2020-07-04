@@ -1,0 +1,24 @@
+{
+  "name": "serverless-component",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/src/component.js",
+  "types": "dist/src/component.d.ts",
+  "scripts": {
+    "prepare": "yarn build",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@serverless/aws-s3": "^4.2.0",
+    "@serverless/core": "^1.1.2",
+    "aws-cloudfront": "link:../aws-cloudfront",
+    "aws-lambda": "link:../aws-lambda",
+    "cloudfront": "link:../cloudfront",
+    "domain": "link:../domain",
+    "lambda-at-edge": "link:../lambda-at-edge",
+    "next-aws-cloudfront": "link:../lambda-at-edge-compat",
+    "s3-static-assets": "link:../s3-static-assets",
+    "fs-extra": "^9.0.1",
+    "typescript": "^3.9.6"
+  }
+}

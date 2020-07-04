@@ -1,0 +1,22 @@
+{
+  "name": "s3-static-assets",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepare": "yarn build",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "klaw": "^3.0.0",
+    "mime-types": "^2.1.27",
+    "regex-parser": "^2.2.10"
+  },
+  "devDependencies": {
+    "@types/klaw": "^3.0.1",
+    "@types/mime-types": "^2.1.0",
+    "typescript": "^3.9.6"
+  }
+}
