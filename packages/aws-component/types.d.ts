@@ -1,0 +1,43 @@
+import { PublicDirectoryCache } from 'aws-s3-utils/types';
+
+type AwsComponentInputs = {
+  build?: BuildOptions; // TODO: figure out a way to properly type this as "BuildOptions | boolean" doesn't work correctly
+  nextConfigDir?: string;
+  nextStaticDir?: string;
+  bucketName?: string;
+  bucketRegion?: string;
+  publicDirectoryCache?: PublicDirectoryCache;
+  memory?: number | { defaultLambda?: number; apiLambda?: number };
+  timeout?: number | { defaultLambda?: number; apiLambda?: number };
+  name?: string | { defaultLambda?: string; apiLambda?: string };
+  runtime?: string | { defaultLambda?: string; apiLambda?: string };
+  description?: string;
+  policy?: string;
+  domain?: string | string[];
+  domainType?: DomainType;
+  cloudfront?: CloudfrontOptions;
+};
+
+type CloudfrontOptions = Record<string, any>;
+
+type DomainType = 'www' | 'apex' | 'both';
+
+type BuildOptions = {
+  cwd?: string;
+  enabled?: boolean;
+  cmd: string;
+  args: string[];
+};
+
+type LambdaType = 'defaultLambda' | 'apiLambda';
+
+type LambdaInput = {
+  description: string;
+  handler: string;
+  code: string;
+  role: Record<string, unknown>;
+  memory: number;
+  timeout: number;
+  runtime: string;
+  name?: string;
+};

@@ -1,20 +1,22 @@
 {
-  "name": "aws-cloudfront",
+  "name": "aws-s3-utils",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "dist/component.js",
-  "types": "dist/component.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "yarn build",
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "@serverless/core": "^1.1.2",
     "aws-sdk": "^2.709.0",
-    "ramda": "^0.27.0"
+    "fs-extra": "^9.0.1",
+    "klaw": "^3.0.0",
+    "mime-types": "^2.1.27",
+    "next": "^9.4.4",
+    "regex-parser": "^2.2.10"
   },
   "devDependencies": {
-    "fs-extra": "^9.0.1",
     "typescript": "^3.9.6"
   }
 }

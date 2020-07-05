@@ -312,7 +312,6 @@ myNextApplication:
 | cloudfront | `object` | `{}` | Inputs to be passed to [aws-cloudfront](https://github.com/serverless-components/aws-cloudfront) |
 | domainType | `string` | `"both"` | Can be one of: `"apex"` - apex domain only, don't create a www subdomain. `"www"` - www domain only, don't create an apex subdomain.`"both"` - create both www and apex domains when either one is provided. |
 | publicDirectoryCache | `boolean\|object` | `true` | Customize the `public`/`static` folder asset caching policy. Assigning an object with `value` and/or `test` lets you customize the caching policy and the types of files being cached. Assigning false disables caching |
-| useServerlessTraceTarget | `boolean` | `false` | Use the experimental-serverless-trace target to build your next app. This is the same build target that Vercel Now uses. See this [RFC](https://github.com/vercel/next.js/pull/8246) for details. |
 | verbose | `boolean` | `false` | Print verbose output to the console. |
 
 Custom inputs can be configured like this:
@@ -399,7 +398,3 @@ myNextApp:
 
 The redirection is not currently implemented, but there is a manual workaround outlined [here](https://simonecarletti.com/blog/2016/08/redirect-domain-https-amazon-cloudfront/#configuring-the-amazon-s3-static-site-with-redirect).
 In summary, you will have to create a new S3 bucket and set it up with static website hosting to redirect requests to your supported subdomain type (ex. "www.example.com" or "example.com"). To be able to support HTTPS redirects, you'll need to set up a CloudFront distribution with the S3 redirect bucket as the origin. Finally, you'll need to create an "A" record in Route 53 with your newly created CloudFront distribution as the alias target.
-
-## Contributing
-
-Please see the [contributing](./CONTRIBUTING.md) guide.

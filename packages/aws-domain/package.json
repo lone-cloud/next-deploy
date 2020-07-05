@@ -1,5 +1,5 @@
 {
-  "name": "aws-cloudfront",
+  "name": "aws-domain",
   "version": "1.0.0",
   "license": "MIT",
   "main": "dist/component.js",
@@ -10,11 +10,10 @@
   },
   "dependencies": {
     "@serverless/core": "^1.1.2",
-    "aws-sdk": "^2.709.0",
-    "ramda": "^0.27.0"
+    "aws-component": "link:../aws-component",
+    "aws-sdk": "^2.709.0"
   },
   "devDependencies": {
-    "fs-extra": "^9.0.1",
     "typescript": "^3.9.6"
   }
 }
