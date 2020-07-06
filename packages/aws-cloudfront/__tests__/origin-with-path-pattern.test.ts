@@ -1,17 +1,18 @@
-const { createComponent, assertHasCacheBehavior, assertHasOrigin } = require('../test-utils');
+import { createComponent, assertHasCacheBehavior, assertHasOrigin } from './test-utils';
 
-const {
+import {
   mockCreateDistribution,
   mockUpdateDistribution,
   mockCreateDistributionPromise,
   mockGetDistributionConfigPromise,
   mockUpdateDistributionPromise,
-} = require('aws-sdk');
+} from 'aws-sdk';
+import CloudFrontComponent from '../serverless';
 
 jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
 
 describe('Input origin with path pattern', () => {
-  let component;
+  let component: CloudFrontComponent;
 
   beforeEach(async () => {
     mockCreateDistributionPromise.mockResolvedValueOnce({

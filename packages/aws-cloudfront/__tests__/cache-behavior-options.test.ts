@@ -1,11 +1,12 @@
-const { createComponent } = require('../test-utils');
+import { createComponent } from './test-utils';
 
-const { mockCreateDistribution, mockCreateDistributionPromise } = require('aws-sdk');
+import { mockCreateDistribution, mockCreateDistributionPromise } from 'aws-sdk';
+import CloudFrontComponent from '../serverless';
 
 jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
 
 describe('Input origin as a custom url', () => {
-  let component;
+  let component: CloudFrontComponent;
 
   beforeEach(async () => {
     mockCreateDistributionPromise.mockResolvedValueOnce({

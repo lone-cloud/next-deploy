@@ -2,7 +2,7 @@ import { CloudFront } from 'aws-sdk';
 
 import { Credentials } from '../../types';
 
-const ALL_FILES_PATH = '/*';
+export const ALL_FILES_PATH = '/*';
 
 const createInvalidation = ({
   credentials,

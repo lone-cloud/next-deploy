@@ -11,7 +11,7 @@ const createComponent = async () => {
   // create tmp folder to avoid state collisions between tests
   const tmpFolder = await createTmpDir();
 
-  const component = new LambdaComponent.default('TestLambda', {
+  const component = new LambdaComponent('TestLambda', {
     stateRoot: tmpFolder,
   });
 

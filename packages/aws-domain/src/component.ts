@@ -15,7 +15,7 @@ import {
 } from './utils';
 import { AwsDomainInputs } from '../types';
 
-class Domain extends Component {
+class DomainComponent extends Component {
   async default(inputs: AwsDomainInputs) {
     this.context.status('Deploying');
 
@@ -198,4 +198,4 @@ class Domain extends Component {
   }
 }
 
-export default Domain;
+export default DomainComponent;

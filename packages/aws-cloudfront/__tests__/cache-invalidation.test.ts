@@ -1,12 +1,9 @@
-import AWS, { mockCreateInvalidation } from 'aws-sdk';
-import createInvalidation, { CreateInvalidationOptions } from '../src/lib/createInvalidation';
-import { ALL_FILES_PATH } from '../src/lib/constants';
+import { CloudFront, mockCreateInvalidation } from 'aws-sdk';
+import createInvalidation, { ALL_FILES_PATH } from '../src/lib/createInvalidation';
 
-jest.mock('aws-sdk', () => require('./aws-sdk.mock'));
+jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
 
-const invalidate = (
-  options: Partial<CreateInvalidationOptions> = {}
-): Promise<AWS.CloudFront.CreateInvalidationResult> => {
+const invalidate = (options = {}): Promise<CloudFront.CreateInvalidationResult> => {
   return createInvalidation({
     ...options,
     distributionId: 'fake-distribution-id',
@@ -22,7 +19,7 @@ describe('Cache invalidation tests', () => {
   it('passes credentials to CloudFront client', async () => {
     await invalidate();
 
-    expect(AWS.CloudFront).toBeCalledWith({
+    expect(CloudFront).toBeCalledWith({
       credentials: {
         accessKeyId: 'fake-access-key',
         secretAccessKey: 'fake-secret-key',

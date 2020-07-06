@@ -1,14 +1,14 @@
 import fse from 'fs-extra';
 import path from 'path';
-import { mockDomain } from 'domain';
+
+import { mockDomain } from 'aws-domain';
 import { mockS3 } from '@serverless/aws-s3';
 import { mockUpload } from 'aws-sdk';
 import { mockLambda, mockLambdaPublish } from 'aws-lambda';
 import { mockCloudFront } from 'aws-cloudfront';
 
-import NextjsComponent from '../src/component';
-import obtainDomains from '../src/lib/obtainDomains';
-import { DEFAULT_LAMBDA_CODE_DIR, API_LAMBDA_CODE_DIR } from '../src/constants';
+import NextjsComponent, { DEFAULT_LAMBDA_CODE_DIR, API_LAMBDA_CODE_DIR } from '../src/component';
+import { getDomains } from '../src/utils';
 import { cleanupFixtureDirectory } from './test-utils';
 
 const createNextComponent = (inputs) => {
@@ -135,7 +135,7 @@ describe('Custom inputs', () => {
     });
 
     it('uses domain to provision custom domain', () => {
-      const { domain, subdomain } = obtainDomains(inputDomains);
+      const { domain, subdomain } = getDomains(inputDomains);
 
       expect(mockDomain).toBeCalledWith({
         defaultCloudfrontInputs: {},

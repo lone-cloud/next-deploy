@@ -2,15 +2,15 @@ import { Component } from '@serverless/core';
 import { exists, readJSON } from 'fs-extra';
 import { resolve, join } from 'path';
 
-import Builder from 'aws-lambda-builder/src/builder';
+import Builder from 'aws-lambda-builder';
 import { OriginRequestDefaultHandlerManifest as BuildManifest } from 'aws-lambda-builder/types';
 import { uploadStaticAssets } from 'aws-s3-utils';
 import createInvalidation from 'aws-cloudfront/src/lib/createInvalidation';
 import { getDomains } from './utils';
 import { BuildOptions, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
 
-const DEFAULT_LAMBDA_CODE_DIR = '.serverless_nextjs/default-lambda';
-const API_LAMBDA_CODE_DIR = '.serverless_nextjs/api-lambda';
+export const DEFAULT_LAMBDA_CODE_DIR = '.serverless_nextjs/default-lambda';
+export const API_LAMBDA_CODE_DIR = '.serverless_nextjs/api-lambda';
 
 class AwsComponent extends Component {
   async default(inputs: AwsComponentInputs = {}): Promise<any> {

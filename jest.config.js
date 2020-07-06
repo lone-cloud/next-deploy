@@ -12,7 +12,17 @@ module.exports = {
     '/fixture/',
     '/dist/',
     '/tests/',
+    '/__tests__/',
+    '/serverless.js',
   ],
   watchPathIgnorePatterns: ['/fixture/', '/fixtures/'],
-  testPathIgnorePatterns: ['/.next/', '/node_modules/', '/fixtures/', '/fixture/', '/examples/'],
+  testPathIgnorePatterns: [
+    '/.next/',
+    '/node_modules/',
+    '/fixtures/',
+    '/fixture/',
+    '/examples/',
+    'test-utils.ts',
+    'aws-sdk.mock.ts',
+  ],
 };

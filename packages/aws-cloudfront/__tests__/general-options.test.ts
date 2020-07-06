@@ -1,17 +1,18 @@
-const { createComponent } = require('../test-utils');
+import { createComponent } from './test-utils';
 
-const {
+import {
   mockCreateDistribution,
   mockUpdateDistribution,
   mockCreateDistributionPromise,
   mockGetDistributionConfigPromise,
   mockUpdateDistributionPromise,
-} = require('aws-sdk');
+} from 'aws-sdk';
+import CloudFrontComponent from '../serverless';
 
 jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
 
 describe('General options propagation', () => {
-  let component;
+  let component: CloudFrontComponent;
 
   // sample origins
   const origins = ['https://exampleorigin.com'];

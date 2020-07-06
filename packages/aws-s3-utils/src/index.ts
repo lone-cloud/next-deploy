@@ -23,8 +23,8 @@ const readDirectoryFiles = (directory: string): Promise<Array<Item>> => {
 const pathToPosix = (path: string): string => path.replace(/\\/g, '/');
 const filterOutDirectories = (fileItem: Item): boolean => !fileItem.stats.isDirectory();
 
-const SERVER_CACHE_CONTROL_HEADER = 'public, max-age=0, s-maxage=2678400, must-revalidate';
-const IMMUTABLE_CACHE_CONTROL_HEADER = 'public, max-age=31536000, immutable';
+export const SERVER_CACHE_CONTROL_HEADER = 'public, max-age=0, s-maxage=2678400, must-revalidate';
+export const IMMUTABLE_CACHE_CONTROL_HEADER = 'public, max-age=31536000, immutable';
 
 export const uploadStaticAssets = async (
   options: UploadStaticAssetsOptions

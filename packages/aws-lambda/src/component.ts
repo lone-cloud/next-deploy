@@ -48,7 +48,7 @@ const defaults: Partial<AwsLambdaInputs> = {
   region: 'us-east-1',
 };
 
-class Lambda extends Component {
+class LambdaComponent extends Component {
   async default(inputs: Partial<AwsLambdaInputs> = {}) {
     this.context.status(`Deploying`);
 
@@ -242,4 +242,4 @@ class Lambda extends Component {
   }
 }
 
-export default Lambda;
+export default LambdaComponent;

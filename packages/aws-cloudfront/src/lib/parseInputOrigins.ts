@@ -1,12 +1,12 @@
 import { CloudFront } from 'aws-sdk';
 
-const getOriginConfig = require('./getOriginConfig');
-const getCacheBehavior = require('./getCacheBehavior');
-const addLambdaAtEdgeToCacheBehavior = require('./addLambdaAtEdgeToCacheBehavior');
+import getOriginConfig from './getOriginConfig';
+import getCacheBehavior from './getCacheBehavior';
+import addLambdaAtEdgeToCacheBehavior from './addLambdaAtEdgeToCacheBehavior';
 
 import { Origin } from '../../types';
 
-const parseInputOrigins = (origins: Origin[], options: any) => {
+const parseInputOrigins = (origins: string[] | Origin[], options: any) => {
   const distributionOrigins = {
     Quantity: 0,
     Items: [],

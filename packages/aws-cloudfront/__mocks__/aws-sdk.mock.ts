@@ -7,55 +7,38 @@ const promisifyMock = (mockFn) => {
   return promise;
 };
 
-const mockCreateDistribution = jest.fn();
-const mockCreateDistributionPromise = promisifyMock(mockCreateDistribution);
+export const mockCreateDistribution = jest.fn();
+export const mockCreateDistributionPromise = promisifyMock(mockCreateDistribution);
 
-const mockUpdateDistribution = jest.fn();
-const mockUpdateDistributionPromise = promisifyMock(mockUpdateDistribution);
+export const mockUpdateDistribution = jest.fn();
+export const mockUpdateDistributionPromise = promisifyMock(mockUpdateDistribution);
 
-const mockGetDistributionConfig = jest.fn();
-const mockGetDistributionConfigPromise = promisifyMock(mockGetDistributionConfig);
+export const mockGetDistributionConfig = jest.fn();
+export const mockGetDistributionConfigPromise = promisifyMock(mockGetDistributionConfig);
 
-const mockDeleteDistribution = jest.fn();
-const mockDeleteDistributionPromise = promisifyMock(mockDeleteDistribution);
+export const mockDeleteDistribution = jest.fn();
+export const mockDeleteDistributionPromise = promisifyMock(mockDeleteDistribution);
 
-const mockCreateCloudFrontOriginAccessIdentity = jest.fn();
-const mockCreateCloudFrontOriginAccessIdentityPromise = promisifyMock(
+export const mockCreateCloudFrontOriginAccessIdentity = jest.fn();
+export const mockCreateCloudFrontOriginAccessIdentityPromise = promisifyMock(
   mockCreateCloudFrontOriginAccessIdentity
 );
 
-const mockPutBucketPolicy = jest.fn();
-const mockPutBucketPolicyPromise = promisifyMock(mockPutBucketPolicy);
+export const mockPutBucketPolicy = jest.fn();
+export const mockPutBucketPolicyPromise = promisifyMock(mockPutBucketPolicy);
 
-const mockCreateInvalidation = jest.fn();
-const mockCreateInvalidationPromise = promisifyMock(mockCreateInvalidation);
+export const mockCreateInvalidation = jest.fn();
+export const mockCreateInvalidationPromise = promisifyMock(mockCreateInvalidation);
 
-export default {
-  mockCreateDistribution,
-  mockUpdateDistribution,
-  mockGetDistributionConfig,
-  mockDeleteDistribution,
-  mockCreateCloudFrontOriginAccessIdentity,
-  mockPutBucketPolicy,
+export const CloudFront = jest.fn(() => ({
+  createDistribution: mockCreateDistribution,
+  updateDistribution: mockUpdateDistribution,
+  getDistributionConfig: mockGetDistributionConfig,
+  deleteDistribution: mockDeleteDistribution,
+  createCloudFrontOriginAccessIdentity: mockCreateCloudFrontOriginAccessIdentity,
+  createInvalidation: mockCreateInvalidation,
+}));
 
-  mockPutBucketPolicyPromise,
-  mockCreateDistributionPromise,
-  mockUpdateDistributionPromise,
-  mockGetDistributionConfigPromise,
-  mockDeleteDistributionPromise,
-  mockCreateCloudFrontOriginAccessIdentityPromise,
-  mockCreateInvalidationPromise,
-
-  CloudFront: jest.fn(() => ({
-    createDistribution: mockCreateDistribution,
-    updateDistribution: mockUpdateDistribution,
-    getDistributionConfig: mockGetDistributionConfig,
-    deleteDistribution: mockDeleteDistribution,
-    createCloudFrontOriginAccessIdentity: mockCreateCloudFrontOriginAccessIdentity,
-    createInvalidation: mockCreateInvalidation,
-  })),
-
-  S3: jest.fn(() => ({
-    putBucketPolicy: mockPutBucketPolicy,
-  })),
-};
+export const S3 = jest.fn(() => ({
+  putBucketPolicy: mockPutBucketPolicy,
+}));

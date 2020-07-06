@@ -3,7 +3,7 @@ import url from 'url';
 
 import { Origin } from '../../types';
 
-const getOriginConfig = (origin: Origin, { originAccessIdentityId = '' }) => {
+const getOriginConfig = (origin: string | Origin, { originAccessIdentityId = '' }) => {
   const originUrl = typeof origin === 'string' ? origin : origin.url;
 
   const { hostname, pathname } = url.parse(originUrl);

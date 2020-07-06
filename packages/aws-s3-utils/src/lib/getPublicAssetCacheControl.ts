@@ -3,8 +3,8 @@ import regexParser from 'regex-parser';
 
 import { PublicDirectoryCache } from '../../types';
 
-const DEFAULT_PUBLIC_DIR_CACHE_CONTROL = 'public, max-age=31536000, must-revalidate';
-const DEFAULT_PUBLIC_DIR_CACHE_REGEX = /\.(gif|jpe?g|jp2|tiff|png|webp|bmp|svg|ico)$/i;
+export const DEFAULT_PUBLIC_DIR_CACHE_CONTROL = 'public, max-age=31536000, must-revalidate';
+export const DEFAULT_PUBLIC_DIR_CACHE_REGEX = /\.(gif|jpe?g|jp2|tiff|png|webp|bmp|svg|ico)$/i;
 
 /**
  * If options is not present, or is explicitly set to true, returns a default Cache-Control configuration for image types.

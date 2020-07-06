@@ -7,7 +7,7 @@ import grantCloudFrontBucketAccess from './grantCloudFrontBucketAccess';
 import { CloudFrontInputs, Origin } from '../../types';
 
 const servePrivateContentEnabled = (inputs: CloudFrontInputs) =>
-  inputs?.origins?.some((origin: Origin) => origin && origin.private === true);
+  inputs?.origins?.some((origin: string | Origin) => origin && (origin as Origin).private === true);
 
 const updateBucketsPolicies = async (
   s3: S3,

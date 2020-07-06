@@ -9,4 +9,4 @@ const domain = jest.fn(() => {
 
 domain.mockDomain = mockDomain;
 
-module.exports = domain;
+export default domain;

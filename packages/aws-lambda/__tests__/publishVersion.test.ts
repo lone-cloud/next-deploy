@@ -84,11 +84,11 @@ describe('publishVersion', () => {
 
     const tmpFolder = await createTmpDir();
 
-    await component.default({
+    await component({
       code: tmpFolder,
     });
 
-    await component.default({
+    await component({
       code: tmpFolder,
     });
 

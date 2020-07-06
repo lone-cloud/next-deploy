@@ -2,8 +2,8 @@ export type CloudFrontInputs = {
   region?: string;
   enabled?: boolean;
   comment?: string;
-  origins: Origin[];
-  defaults: Partial<PathPatternConfig>;
+  origins: string[] | Origin[];
+  defaults?: PathPatternConfig;
 };
 
 type PathPatternConfig = {

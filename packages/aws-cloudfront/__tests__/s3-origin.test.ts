@@ -1,4 +1,4 @@
-const {
+import {
   mockCreateDistribution,
   mockUpdateDistribution,
   mockCreateDistributionPromise,
@@ -6,14 +6,15 @@ const {
   mockUpdateDistributionPromise,
   mockCreateCloudFrontOriginAccessIdentityPromise,
   mockPutBucketPolicy,
-} = require('aws-sdk');
+} from 'aws-sdk';
+import CloudFrontComponent from '../serverless';
 
-const { createComponent, assertHasOrigin } = require('../test-utils');
+import { createComponent, assertHasOrigin } from './test-utils';
 
 jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
 
 describe('S3 origins', () => {
-  let component;
+  let component: CloudFrontComponent;
 
   beforeEach(async () => {
     mockCreateDistributionPromise.mockResolvedValueOnce({

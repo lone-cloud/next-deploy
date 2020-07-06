@@ -1,46 +1,45 @@
-const fse = require('fs-extra');
-const os = require('os');
-const path = require('path');
-const CloudFrontComponent = require('../serverless');
+import fse from 'fs-extra';
+import os from 'os';
+import path from 'path';
 
-module.exports = {
-  createComponent: async () => {
-    // mock to prevent jest snapshots changing every time
-    Date.now = () => 1566599541192;
+import CloudFrontComponent from '../serverless';
 
-    // create tmp folder to avoid state collisions between tests
-    const tmpFolder = await fse.mkdtemp(path.join(os.tmpdir(), 'test-'));
+export const createComponent = async () => {
+  // mock to prevent jest snapshots changing every time
+  Date.now = () => 1566599541192;
 
-    const component = new CloudFrontComponent('TestCloudFront', {
-      stateRoot: tmpFolder,
-    });
+  // create tmp folder to avoid state collisions between tests
+  const tmpFolder = await fse.mkdtemp(path.join(os.tmpdir(), 'test-'));
 
-    await component.init();
+  const component = new CloudFrontComponent('TestCloudFront', {
+    stateRoot: tmpFolder,
+  });
 
-    return component;
-  },
+  await component.init();
 
-  assertHasCacheBehavior: (spy, cacheBehavior) => {
-    expect(spy).toBeCalledWith(
-      expect.objectContaining({
-        DistributionConfig: expect.objectContaining({
-          CacheBehaviors: expect.objectContaining({
-            Items: [expect.objectContaining(cacheBehavior)],
-          }),
+  return component;
+};
+
+export const assertHasCacheBehavior = (spy, cacheBehavior) => {
+  expect(spy).toBeCalledWith(
+    expect.objectContaining({
+      DistributionConfig: expect.objectContaining({
+        CacheBehaviors: expect.objectContaining({
+          Items: [expect.objectContaining(cacheBehavior)],
         }),
-      })
-    );
-  },
+      }),
+    })
+  );
+};
 
-  assertHasOrigin: (spy, origin) => {
-    expect(spy).toBeCalledWith(
-      expect.objectContaining({
-        DistributionConfig: expect.objectContaining({
-          Origins: expect.objectContaining({
-            Items: [expect.objectContaining(origin)],
-          }),
+export const assertHasOrigin = (spy, origin) => {
+  expect(spy).toBeCalledWith(
+    expect.objectContaining({
+      DistributionConfig: expect.objectContaining({
+        Origins: expect.objectContaining({
+          Items: [expect.objectContaining(origin)],
         }),
-      })
-    );
-  },
+      }),
+    })
+  );
 };

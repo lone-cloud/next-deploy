@@ -1,10 +1,10 @@
 import path from 'path';
-import uploadStaticAssets from '../src/index';
 import {
+  uploadStaticAssets,
   IMMUTABLE_CACHE_CONTROL_HEADER,
-  DEFAULT_PUBLIC_DIR_CACHE_CONTROL,
   SERVER_CACHE_CONTROL_HEADER,
-} from '../src/lib/constants';
+} from '../src/index';
+import { DEFAULT_PUBLIC_DIR_CACHE_CONTROL } from '../src/lib/getPublicAssetCacheControl';
 import AWS, {
   mockGetBucketAccelerateConfigurationPromise,
   mockGetBucketAccelerateConfiguration,
