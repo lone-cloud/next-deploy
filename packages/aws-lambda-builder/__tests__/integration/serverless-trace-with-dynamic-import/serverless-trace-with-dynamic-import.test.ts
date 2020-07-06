@@ -17,7 +17,6 @@ describe('Serverless Trace With Dynamic Import', () => {
       cwd: fixtureDir,
       cmd: nextBinary,
       args: ['build'],
-      useServerlessTraceTarget: true,
     });
 
     await builder.build();

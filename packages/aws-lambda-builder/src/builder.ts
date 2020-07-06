@@ -142,6 +142,10 @@ class Builder {
         require.resolve('aws-lambda-builder/dist/default-handler.js'),
         join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'index.js')
       ),
+      fse.copy(
+        require.resolve('aws-lambda-builder/dist/compat.js'),
+        join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'compat.js')
+      ),
       fse.writeJson(join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'manifest.json'), buildManifest),
       fse.copy(
         join(this.serverlessDir, 'pages'),
@@ -164,8 +168,6 @@ class Builder {
   }
 
   async buildApiLambda(apiBuildManifest: OriginRequestApiHandlerManifest): Promise<void[]> {
-    let copyTraces: Promise<void>[] = [];
-
     const allApiPages = [
       ...Object.values(apiBuildManifest.apis.nonDynamic),
       ...Object.values(apiBuildManifest.apis.dynamic).map((entry) => entry.file),
@@ -179,13 +181,17 @@ class Builder {
       base: process.cwd(),
     });
 
-    copyTraces = this.copyLambdaHandlerDependencies(fileList, reasons, API_LAMBDA_CODE_DIR);
+    const copyTraces = this.copyLambdaHandlerDependencies(fileList, reasons, API_LAMBDA_CODE_DIR);
 
     return Promise.all([
       ...copyTraces,
       fse.copy(
         require.resolve('aws-lambda-builder/dist/api-handler.js'),
         join(this.outputDir, API_LAMBDA_CODE_DIR, 'index.js')
+      ),
+      fse.copy(
+        require.resolve('aws-lambda-builder/dist/compat.js'),
+        join(this.outputDir, API_LAMBDA_CODE_DIR, 'compat.js')
       ),
       fse.copy(
         join(this.serverlessDir, 'pages/api'),

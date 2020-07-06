@@ -3,13 +3,26 @@ import { equals } from 'ramda';
 import { Component } from '@serverless/core';
 
 import {
+  createInvalidation,
   createCloudFrontDistribution,
   updateCloudFrontDistribution,
   deleteCloudFrontDistribution,
 } from './lib';
-import { CloudFrontInputs } from '../types';
+import { Credentials, CloudFrontInputs } from '../types';
 
 class CloudFrontComponent extends Component {
+  static createInvalidation({
+    credentials,
+    distributionId,
+    paths,
+  }: {
+    credentials: Credentials;
+    distributionId: string;
+    paths?: string[];
+  }) {
+    createInvalidation({ credentials, distributionId, paths });
+  }
+
   async default(inputs: CloudFrontInputs) {
     this.context.status('Deploying');
 

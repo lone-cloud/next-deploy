@@ -6,6 +6,8 @@ import createOriginAccessIdentity from './createOriginAccessIdentity';
 import grantCloudFrontBucketAccess from './grantCloudFrontBucketAccess';
 import { CloudFrontInputs, Origin } from '../../types';
 
+export { default as createInvalidation } from './createInvalidation';
+
 const servePrivateContentEnabled = (inputs: CloudFrontInputs) =>
   inputs?.origins?.some((origin: string | Origin) => origin && (origin as Origin).private === true);
 

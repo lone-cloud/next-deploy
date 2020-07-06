@@ -740,9 +740,7 @@ describe('Custom inputs', () => {
     });
 
     it('builds correctly', async () => {
-      await createNextComponent({})({
-        useServerlessTraceTarget: true,
-      });
+      await createNextComponent({})({});
     });
   });
 });

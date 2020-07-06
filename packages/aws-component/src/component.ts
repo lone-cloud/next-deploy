@@ -5,7 +5,7 @@ import { resolve, join } from 'path';
 import Builder from 'aws-lambda-builder';
 import { OriginRequestDefaultHandlerManifest as BuildManifest } from 'aws-lambda-builder/types';
 import { uploadStaticAssets } from 'aws-s3-utils';
-import createInvalidation from 'aws-cloudfront/src/lib/createInvalidation';
+import AwsCloudFront from 'aws-cloudfront';
 import { getDomains } from './utils';
 import { BuildOptions, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
 
@@ -393,7 +393,7 @@ class AwsComponent extends Component {
 
     let appUrl = cloudFrontOutputs.url;
 
-    await createInvalidation({
+    await AwsCloudFront.createInvalidation({
       distributionId: cloudFrontOutputs.id,
       credentials: this.context.credentials.aws,
     });

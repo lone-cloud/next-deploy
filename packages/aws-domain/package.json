@@ -2,7 +2,7 @@
   "name": "aws-domain",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "dist/component.js",
+  "main": "serverless.js",
   "types": "dist/component.d.ts",
   "scripts": {
     "prepare": "yarn build",
