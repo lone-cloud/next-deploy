@@ -1,11 +1,11 @@
 import fse from 'fs-extra';
 import path from 'path';
 
-import { mockDomain } from 'aws-domain';
+import { mockDomain } from '@next-deploy/aws-domain';
 import { mockS3 } from '@serverless/aws-s3';
 import { mockUpload } from 'aws-sdk';
-import { mockLambda, mockLambdaPublish } from 'aws-lambda';
-import { mockCloudFront } from 'aws-cloudfront';
+import { mockLambda, mockLambdaPublish } from '@next-deploy/aws-lambda';
+import { mockCloudFront } from '@next-deploy/aws-cloudfront';
 
 import NextjsComponent, { DEFAULT_LAMBDA_CODE_DIR, API_LAMBDA_CODE_DIR } from '../src/component';
 import { getDomains } from '../src/utils';

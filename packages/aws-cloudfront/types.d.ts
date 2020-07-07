@@ -19,8 +19,8 @@ type PathPatternConfig = {
 
 type Origin = {
   url: string;
-  private: boolean;
-  pathPatterns: Record<string, PathPatternConfig>;
+  private?: boolean;
+  pathPatterns?: Record<string, PathPatternConfig>;
 };
 
 type Credentials = {

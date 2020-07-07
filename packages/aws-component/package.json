@@ -1,5 +1,5 @@
 {
-  "name": "aws-component",
+  "name": "@next-deploy/aws-component",
   "version": "1.0.0",
   "license": "MIT",
   "main": "serverless.js",
@@ -11,11 +11,11 @@
   "dependencies": {
     "@serverless/aws-s3": "^4.2.0",
     "@serverless/core": "^1.1.2",
-    "aws-cloudfront": "link:../aws-cloudfront",
-    "aws-domain": "link:../aws-domain",
-    "aws-lambda": "link:../aws-lambda",
-    "aws-lambda-builder": "link:../aws-lambda-builder",
-    "aws-s3-utils": "link:../aws-s3-utils",
+    "@next-deploy/aws-cloudfront": "link:../aws-cloudfront",
+    "@next-deploy/aws-domain": "link:../aws-domain",
+    "@next-deploy/aws-lambda": "link:../aws-lambda",
+    "@next-deploy/aws-lambda-builder": "link:../aws-lambda-builder",
+    "@next-deploy/aws-s3-utils": "link:../aws-s3-utils",
     "fs-extra": "^9.0.1"
   },
   "devDependencies": {

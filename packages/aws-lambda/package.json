@@ -1,5 +1,5 @@
 {
-  "name": "aws-lambda",
+  "name": "@next-deploy/aws-lambda",
   "version": "1.0.0",
   "license": "MIT",
   "main": "serverless.js",

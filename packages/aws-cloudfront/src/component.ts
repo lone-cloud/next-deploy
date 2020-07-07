@@ -19,11 +19,11 @@ class CloudFrontComponent extends Component {
     credentials: Credentials;
     distributionId: string;
     paths?: string[];
-  }) {
-    createInvalidation({ credentials, distributionId, paths });
+  }): Promise<CloudFront.CreateInvalidationResult> {
+    return createInvalidation({ credentials, distributionId, paths });
   }
 
-  async default(inputs: CloudFrontInputs) {
+  async default(inputs: CloudFrontInputs): Promise<any> {
     this.context.status('Deploying');
 
     inputs.region = inputs.region || 'us-east-1';
@@ -72,7 +72,7 @@ class CloudFrontComponent extends Component {
     return this.state;
   }
 
-  async remove() {
+  async remove(): Promise<void> {
     this.context.status('Removing');
 
     if (!this.state.id) {
@@ -90,7 +90,6 @@ class CloudFrontComponent extends Component {
     await this.save();
 
     this.context.debug(`CloudFront distribution was successfully removed.`);
-    return {};
   }
 }
 

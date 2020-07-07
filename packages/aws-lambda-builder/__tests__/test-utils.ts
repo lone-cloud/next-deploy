@@ -1,6 +1,5 @@
 import path from 'path';
 import { remove } from 'fs-extra';
-import { CloudFrontOrigin } from 'aws-lambda';
 import { OriginRequestEvent } from '../types';
 
 export const cleanupDir = (dir: string): Promise<void> => {

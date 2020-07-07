@@ -36,7 +36,7 @@ describe('Serverless Trace With Dynamic Import', () => {
     expect(nodeModules).toEqual(['@sls-next', 'next']);
 
     const slsNextNodeModules = await readdir(path.join(outputDir, 'api-lambda/node_modules'));
-    expect(slsNextNodeModules).toContain('next-aws-cloudfront');
+    expect(slsNextNodeModules).toContain('@next-deploy/aws-lambda-builder');
   });
 
   it('copies dynamic chunk to default lambda artifact', async () => {

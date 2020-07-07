@@ -1,6 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 
+import { CreateServerlessConfigResult } from '../../types';
+
 function getCustomData(importName: string, target: string): string {
   return `
 module.exports = function(...args) {
@@ -31,10 +33,6 @@ module.exports = function(...args) {
 function getDefaultData(target: string): string {
   return `module.exports = { target: '${target}' };`;
 }
-
-type CreateServerlessConfigResult = {
-  restoreUserConfig: () => Promise<void>;
-};
 
 export default async function createServerlessConfig(
   workPath: string,

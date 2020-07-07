@@ -1,4 +1,5 @@
-import { PublicDirectoryCache } from 'aws-s3-utils/types';
+import { PublicDirectoryCache } from '@next-deploy/aws-s3-utils/types';
+import { CloudFrontInputs } from '@next-deploy/aws-cloudfront/types';
 
 type AwsComponentInputs = {
   build?: BuildOptions; // TODO: figure out a way to properly type this as "BuildOptions | boolean" doesn't work correctly
@@ -15,10 +16,8 @@ type AwsComponentInputs = {
   policy?: string;
   domain?: string | string[];
   domainType?: DomainType;
-  cloudfront?: CloudfrontOptions;
+  cloudfront?: CloudFrontInputs;
 };
-
-type CloudfrontOptions = Record<string, any>;
 
 type DomainType = 'www' | 'apex' | 'both';
 

@@ -2,18 +2,28 @@ import { Component } from '@serverless/core';
 import { exists, readJSON } from 'fs-extra';
 import { resolve, join } from 'path';
 
-import Builder from 'aws-lambda-builder';
-import { OriginRequestDefaultHandlerManifest as BuildManifest } from 'aws-lambda-builder/types';
-import { uploadStaticAssets } from 'aws-s3-utils';
-import AwsCloudFront from 'aws-cloudfront';
+import Builder from '@next-deploy/aws-lambda-builder';
+import { uploadStaticAssets } from '@next-deploy/aws-s3-utils';
+import AwsCloudFront from '@next-deploy/aws-cloudfront';
 import { getDomains } from './utils';
+import {
+  OriginRequestDefaultHandlerManifest as BuildManifest,
+  OriginRequestApiHandlerManifest,
+} from '@next-deploy/aws-lambda-builder/types';
+import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
+import { Origin } from '@next-deploy/aws-cloudfront/types';
 import { BuildOptions, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
 
 export const DEFAULT_LAMBDA_CODE_DIR = '.serverless_nextjs/default-lambda';
 export const API_LAMBDA_CODE_DIR = '.serverless_nextjs/api-lambda';
 
 class AwsComponent extends Component {
-  async default(inputs: AwsComponentInputs = {}): Promise<any> {
+  async default(
+    inputs: AwsComponentInputs = {}
+  ): Promise<{
+    appUrl: string;
+    bucketName: string;
+  }> {
     // @ts-ignore
     if (inputs.build !== false) {
       await this.build(inputs);
@@ -22,7 +32,7 @@ class AwsComponent extends Component {
     return this.deploy(inputs);
   }
 
-  readDefaultBuildManifest(nextConfigPath: string): Promise<any> {
+  readDefaultBuildManifest(nextConfigPath: string): Promise<BuildManifest> {
     return readJSON(join(nextConfigPath, '.serverless_nextjs/default-lambda/manifest.json'));
   }
 
@@ -104,7 +114,9 @@ class AwsComponent extends Component {
     }
   }
 
-  async readApiBuildManifest(nextConfigPath: string): Promise<any> {
+  async readApiBuildManifest(
+    nextConfigPath: string
+  ): Promise<undefined | OriginRequestApiHandlerManifest> {
     const path = join(nextConfigPath, '.serverless_nextjs/api-lambda/manifest.json');
 
     // @ts-ignore
@@ -146,7 +158,7 @@ class AwsComponent extends Component {
 
     const nextStaticPath = inputs.nextStaticDir ? resolve(inputs.nextStaticDir) : nextConfigPath;
 
-    const customCloudFrontConfig = inputs.cloudfront || {};
+    const customCloudFrontConfig: Record<string, any> = inputs.cloudfront || {};
 
     const [defaultBuildManifest, apiBuildManifest] = await Promise.all([
       this.readDefaultBuildManifest(nextConfigPath),
@@ -155,9 +167,9 @@ class AwsComponent extends Component {
 
     const [bucket, cloudFront, defaultEdgeLambda, apiEdgeLambda] = await Promise.all([
       this.load('@serverless/aws-s3'),
-      this.load('aws-cloudfront'),
-      this.load('aws-lambda', 'defaultEdgeLambda'),
-      this.load('aws-lambda', 'apiEdgeLambda'),
+      this.load('@next-deploy/aws-cloudfront'),
+      this.load('@next-deploy/aws-lambda', 'defaultEdgeLambda'),
+      this.load('@next-deploy/aws-lambda', 'apiEdgeLambda'),
     ]);
 
     const bucketOutputs = await bucket({
@@ -174,18 +186,12 @@ class AwsComponent extends Component {
       publicDirectoryCache: inputs.publicDirectoryCache,
     });
 
-    defaultBuildManifest.cloudFrontOrigins = {
-      staticOrigin: {
-        domainName: `${bucketOutputs.name}.s3.amazonaws.com`,
-      },
-    };
-
     const bucketUrl = `http://${bucketOutputs.name}.s3.amazonaws.com`;
 
     // If origin is relative path then prepend the bucketUrl
     // e.g. /path => http://bucket.s3.aws.com/path
-    const expandRelativeUrls = (origin: string | Record<string, unknown>) => {
-      const originUrl = typeof origin === 'string' ? origin : (origin.url as string);
+    const expandRelativeUrls = (origin: string | Origin): string | Origin => {
+      const originUrl = typeof origin === 'string' ? origin : origin.url;
       const fullOriginUrl = originUrl.charAt(0) === '/' ? `${bucketUrl}${originUrl}` : originUrl;
 
       if (typeof origin === 'string') {
@@ -199,7 +205,7 @@ class AwsComponent extends Component {
     };
 
     // parse origins from inputs
-    let inputOrigins: any[] = [];
+    let inputOrigins: any = [];
     if (inputs.cloudfront && inputs.cloudfront.origins) {
       const origins = inputs.cloudfront.origins as string[];
       inputOrigins = origins.map(expandRelativeUrls);
@@ -311,12 +317,11 @@ class AwsComponent extends Component {
 
     const defaultEdgeLambdaPublishOutputs = await defaultEdgeLambda.publishVersion();
 
-    let defaultCloudfrontInputs;
+    let defaultCloudfrontInputs = {} as Partial<PathPatternConfig>;
+
     if (inputs.cloudfront && inputs.cloudfront.defaults) {
       defaultCloudfrontInputs = inputs.cloudfront.defaults;
       delete inputs.cloudfront.defaults;
-    } else {
-      defaultCloudfrontInputs = {};
     }
 
     // validate that the custom config paths match generated paths in the manifest
@@ -401,7 +406,7 @@ class AwsComponent extends Component {
     const { domain, subdomain } = getDomains(inputs.domain);
 
     if (domain && subdomain) {
-      const domainComponent = await this.load('aws-domain');
+      const domainComponent = await this.load('@next-deploy/aws-domain');
       const domainOutputs = await domainComponent({
         privateZone: false,
         domain,
@@ -423,8 +428,8 @@ class AwsComponent extends Component {
   async remove(): Promise<void> {
     const [bucket, cloudfront, domain] = await Promise.all([
       this.load('@serverless/aws-s3'),
-      this.load('aws-cloudfront'),
-      this.load('aws-domain'),
+      this.load('@next-deploy/aws-cloudfront'),
+      this.load('@next-deploy/aws-domain'),
     ]);
 
     await Promise.all([bucket.remove(), cloudfront.remove(), domain.remove()]);

@@ -198,7 +198,7 @@ const handler = ({
     return true;
   };
 
-  let gz = isGzipSupported(headers);
+  const gz = isGzipSupported(headers);
 
   const responsePromise = new Promise<CloudFrontResultResponse>((resolve) => {
     res.end = (text: any) => {

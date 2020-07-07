@@ -1,7 +1,8 @@
 import { Route53, ACM, CloudFront } from 'aws-sdk';
 import { utils } from '@serverless/core';
 
-import { DomainType } from 'aws-component/types';
+import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
+import { DomainType } from '@next-deploy/aws-component/types';
 import { AwsDomainInputs, Credentials, SubDomain } from '../types';
 
 const DEFAULT_MINIMUM_PROTOCOL_VERSION = 'TLSv1.2_2018';
@@ -68,7 +69,7 @@ export const getDomainHostedZoneId = async (
   route53: Route53,
   domain: string,
   privateZone: boolean
-) => {
+): Promise<string> => {
   const hostedZonesRes = await route53.listHostedZonesByName().promise();
 
   const hostedZone = hostedZonesRes.HostedZones.find(
@@ -89,7 +90,10 @@ export const getDomainHostedZoneId = async (
  * Describe Certificate By Arn
  * - Describe an AWS ACM Certificate by its ARN
  */
-export const describeCertificateByArn = async (acm: ACM, certificateArn: string) => {
+export const describeCertificateByArn = async (
+  acm: ACM,
+  certificateArn: string
+): Promise<ACM.CertificateDetail | null> => {
   const certificate = await acm.describeCertificate({ CertificateArn: certificateArn }).promise();
   return certificate && certificate.Certificate ? certificate.Certificate : null;
 };
@@ -98,7 +102,10 @@ export const describeCertificateByArn = async (acm: ACM, certificateArn: string)
  * Get Certificate Arn By Domain
  * - Gets an AWS ACM Certificate by a specified domain or return null
  */
-export const getCertificateArnByDomain = async (acm: ACM, domain: string) => {
+export const getCertificateArnByDomain = async (
+  acm: ACM,
+  domain: string
+): Promise<string | null> => {
   const listRes = await acm.listCertificates().promise();
 
   if (!listRes.CertificateSummaryList) {
@@ -160,10 +167,9 @@ export const validateCertificate = async (
   certificate: ACM.CertificateDetail,
   domain: string,
   domainHostedZoneId: string
-) => {
+): Promise<void> => {
   let readinessCheckCount = 16;
   let statusCheckCount = 16;
-  let validationResourceRecord: ACM.ResourceRecord;
 
   /**
    * Check Readiness
@@ -197,7 +203,7 @@ export const validateCertificate = async (
     return await checkReadiness();
   };
 
-  validationResourceRecord = await checkReadiness();
+  const validationResourceRecord = await checkReadiness();
 
   const checkRecordsParams = {
     HostedZoneId: domainHostedZoneId,
@@ -320,7 +326,7 @@ export const removeCloudFrontDomainDnsRecords = async (
   domain: string,
   domainHostedZoneId: string,
   distributionUrl: string
-) => {
+): Promise<void> => {
   const params = {
     HostedZoneId: domainHostedZoneId,
     ChangeBatch: {
@@ -357,8 +363,12 @@ export const addDomainToCloudfrontDistribution = async (
   subdomain: SubDomain,
   certificateArn: string,
   domainType: DomainType,
-  defaultCloudfrontInputs: any
-) => {
+  defaultCloudfrontInputs: Partial<PathPatternConfig>
+): Promise<{
+  id?: string;
+  arn?: string;
+  url?: string;
+}> => {
   const distributionConfigResponse = await cf
     .getDistributionConfig({ Id: subdomain.distributionId })
     .promise();
@@ -416,7 +426,11 @@ export const addDomainToCloudfrontDistribution = async (
 export const removeDomainFromCloudFrontDistribution = async (
   cf: CloudFront,
   subdomain: SubDomain
-) => {
+): Promise<{
+  id?: string;
+  arn?: string;
+  url?: string;
+}> => {
   const distributionConfigResponse = await cf
     .getDistributionConfig({ Id: subdomain.distributionId })
     .promise();

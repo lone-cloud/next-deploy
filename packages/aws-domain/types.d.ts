@@ -1,11 +1,12 @@
-import { DomainType } from 'aws-component/types';
+import { DomainType } from '@next-deploy/aws-component/types';
+import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 
 type AwsDomainInputs = {
   domain: string;
   region?: string;
   privateZone?: boolean;
   domainType?: DomainType;
-  defaultCloudfrontInputs?: any;
+  defaultCloudfrontInputs?: Partial<PathPatternConfig>;
   subdomains: SubDomain[];
 };
 

@@ -1,5 +1,5 @@
 {
-  "name": "aws-s3-utils",
+  "name": "@next-deploy/aws-s3-utils",
   "version": "1.0.0",
   "license": "MIT",
   "main": "dist/index.js",

@@ -114,8 +114,6 @@ class Builder {
   }
 
   async buildDefaultLambda(buildManifest: OriginRequestDefaultHandlerManifest): Promise<void[]> {
-    let copyTraces: Promise<void>[] = [];
-
     const ignoreAppAndDocumentPages = (page: string): boolean => {
       const basename = path.basename(page);
       return basename !== '_app.js' && basename !== '_document.js';
@@ -134,7 +132,11 @@ class Builder {
       base: process.cwd(),
     });
 
-    copyTraces = this.copyLambdaHandlerDependencies(fileList, reasons, DEFAULT_LAMBDA_CODE_DIR);
+    const copyTraces = this.copyLambdaHandlerDependencies(
+      fileList,
+      reasons,
+      DEFAULT_LAMBDA_CODE_DIR
+    );
 
     return Promise.all([
       ...copyTraces,

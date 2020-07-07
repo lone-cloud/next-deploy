@@ -73,3 +73,7 @@ type BuildOptions = {
   cwd?: string;
   cmd?: string;
 };
+
+type CreateServerlessConfigResult = {
+  restoreUserConfig: () => Promise<void>;
+};

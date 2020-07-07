@@ -1008,6 +1008,26 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
+"@next-deploy/aws-cloudfront@link:../aws-cloudfront":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-domain@link:../aws-domain":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-lambda-builder@link:../aws-lambda-builder":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-lambda@link:../aws-lambda":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-s3-utils@link:../aws-s3-utils":
+  version "0.0.0"
+  uid ""
+
 "@next/react-dev-overlay@9.4.4":
   version "9.4.4"
   resolved "https://registry.yarnpkg.com/@next/react-dev-overlay/-/react-dev-overlay-9.4.4.tgz#4ae03ac839ff022b3ce5c695bd24b179d4ef459d"
@@ -1649,30 +1669,6 @@ atob@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
-
-"aws-cloudfront@link:../aws-cloudfront":
-  version "0.0.0"
-  uid ""
-
-"aws-component@link:.":
-  version "0.0.0"
-  uid ""
-
-"aws-domain@link:../aws-domain":
-  version "0.0.0"
-  uid ""
-
-"aws-lambda-builder@link:../aws-lambda-builder":
-  version "0.0.0"
-  uid ""
-
-"aws-lambda@link:../aws-lambda":
-  version "0.0.0"
-  uid ""
-
-"aws-s3-utils@link:../aws-s3-utils":
-  version "0.0.0"
-  uid ""
 
 aws-sdk@^2.387.0, aws-sdk@^2.488.0, aws-sdk@^2.709.0:
   version "2.709.0"

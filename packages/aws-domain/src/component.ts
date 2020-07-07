@@ -151,7 +151,7 @@ class DomainComponent extends Component {
     return outputs;
   }
 
-  async remove() {
+  async remove(): Promise<void> {
     this.context.status('Deploying');
 
     if (!this.state.domain) {
@@ -193,8 +193,6 @@ class DomainComponent extends Component {
     }
     this.state = {};
     await this.save();
-
-    return {};
   }
 }
 

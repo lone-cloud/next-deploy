@@ -1,5 +1,5 @@
 {
-  "name": "aws-cloudfront",
+  "name": "@next-deploy/aws-cloudfront",
   "version": "1.0.0",
   "license": "MIT",
   "main": "serverless.js",
