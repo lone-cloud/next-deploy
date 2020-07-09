@@ -1,6 +1,4 @@
-import { CloudFront } from 'aws-sdk';
-
-import { Credentials } from '../../types';
+import { CloudFront, Credentials } from 'aws-sdk';
 
 export const ALL_FILES_PATH = '/*';
 

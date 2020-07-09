@@ -1,4 +1,5 @@
 declare module '@serverless/core' {
+  import { Credentials } from 'aws-sdk';
   export class Component {
     load(modulePath: string, moduleName?: string): any;
     save(): void;
@@ -21,13 +22,30 @@ declare module '@serverless/core' {
 
   type Utils = {
     dirExists(path: string): boolean;
+    fileExists(path: string): boolean;
     hashFile(path: string): string;
     isArchivePath(path: string): boolean;
     sleep(time: number): void;
-  };
-  type Credentials = {
-    accessKeyId: string;
-    secretAccessKey: string;
-    sessionToken?: string;
+    readFileIfExists(path: string): Promise<any>;
+    randomId(): string;
+    readFile(path: string): Promise<any>;
+    writeFile(contextStatePath: string, state: Record<string, unknown>): Promise<any>;
   };
 }
+
+declare module 's3-stream-upload' {
+  import { S3 } from 'aws-sdk';
+
+  export default function (s3: S3, options: UploadStreamOptions): NodeJS.WritableStream;
+}
+
+declare module 'prettyoutput' {
+  export default function (data: any, options?: any, indent?: number): string;
+}
+
+type UploadStreamOptions = {
+  Bucket?: string;
+  Key?: string;
+  ContentType?: string;
+  CacheControl?: string;
+};

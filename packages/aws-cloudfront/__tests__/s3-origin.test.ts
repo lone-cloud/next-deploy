@@ -11,7 +11,7 @@ import CloudFrontComponent from '../serverless';
 
 import { createComponent, assertHasOrigin } from './test-utils';
 
-jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
+jest.mock('aws-sdk', () => require('./aws-sdk.mock'));
 
 describe('S3 origins', () => {
   let component: CloudFrontComponent;

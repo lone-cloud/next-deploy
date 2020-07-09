@@ -4,9 +4,9 @@ import fse from 'fs-extra';
 import { PrerenderManifest } from 'next/dist/build/index';
 import klaw, { Item } from 'klaw';
 
-import S3ClientFactory from './lib/s3';
-import getPublicAssetCacheControl from './lib/getPublicAssetCacheControl';
-import { UploadStaticAssetsOptions, PublicDirectoryCache } from '../types';
+import S3ClientFactory from './s3';
+import getPublicAssetCacheControl from './getPublicAssetCacheControl';
+import { UploadStaticAssetsOptions, PublicDirectoryCache } from '../../types';
 
 const readDirectoryFiles = (directory: string): Promise<Array<Item>> => {
   const items: Item[] = [];
@@ -26,7 +26,7 @@ const filterOutDirectories = (fileItem: Item): boolean => !fileItem.stats.isDire
 export const SERVER_CACHE_CONTROL_HEADER = 'public, max-age=0, s-maxage=2678400, must-revalidate';
 export const IMMUTABLE_CACHE_CONTROL_HEADER = 'public, max-age=31536000, immutable';
 
-export const uploadStaticAssets = async (
+const uploadStaticAssets = async (
   options: UploadStaticAssetsOptions
 ): Promise<AWS.S3.ManagedUpload.SendData[]> => {
   const { bucketName, nextConfigDir, nextStaticDir = nextConfigDir } = options;
@@ -145,3 +145,5 @@ export const uploadStaticAssets = async (
 
   return Promise.all(allUploads);
 };
+
+export default uploadStaticAssets;

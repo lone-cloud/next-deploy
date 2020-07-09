@@ -1,4 +1,16 @@
-import { S3 } from 'aws-sdk';
+import { Credentials, S3 } from 'aws-sdk';
+
+type AwsS3Inputs = {
+  name?: string;
+  region?: string;
+  file?: string;
+  dir?: string;
+  key?: string;
+  zip?: string;
+  cacheControl?: S3.CacheControl;
+  keyPrefix?: string;
+  cors?: S3.CORSConfiguration;
+};
 
 type PublicDirectoryCache =
   | boolean
@@ -28,10 +40,4 @@ type UploadFileOptions = {
 
 type S3Client = {
   uploadFile: (options: UploadFileOptions) => Promise<S3.ManagedUpload.SendData>;
-};
-
-type Credentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken?: string;
 };

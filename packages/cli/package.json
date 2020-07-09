@@ -1,5 +1,5 @@
 {
-  "name": "@next-deploy/aws-s3-utils",
+  "name": "@next-deploy/cli",
   "version": "1.0.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -9,12 +9,11 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "aws-sdk": "^2.709.0",
+    "@next-deploy/aws-component": "link:../aws-component",
     "fs-extra": "^9.0.1",
-    "klaw": "^3.0.0",
-    "mime-types": "^2.1.27",
-    "next": "^9.4.4",
-    "regex-parser": "^2.2.10"
+    "minimist": "^1.2.5",
+    "ora": "^4.0.4",
+    "prettyoutput": "^1.2.0"
   },
   "devDependencies": {
     "typescript": "^3.9.6"

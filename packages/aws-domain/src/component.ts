@@ -16,7 +16,7 @@ import {
 import { AwsDomainInputs } from '../types';
 
 class DomainComponent extends Component {
-  async default(inputs: AwsDomainInputs) {
+  async default(inputs: AwsDomainInputs): Promise<{ domains: string[] }> {
     this.context.status('Deploying');
 
     this.context.debug(`Starting Domain component deployment.`);

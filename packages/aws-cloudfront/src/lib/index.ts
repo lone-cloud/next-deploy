@@ -32,7 +32,11 @@ export const createCloudFrontDistribution = async (
   cf: CloudFront,
   s3: S3,
   inputs: CloudFrontInputs
-) => {
+): Promise<{
+  id?: string;
+  arn?: string;
+  url?: string;
+}> => {
   let originAccessIdentityId;
   let s3CanonicalUserId;
 
@@ -82,7 +86,11 @@ export const updateCloudFrontDistribution = async (
   s3: S3,
   distributionId: string,
   inputs: CloudFrontInputs
-) => {
+): Promise<{
+  id?: string;
+  arn?: string;
+  url?: string;
+}> => {
   const distributionConfigResponse = await cf
     .getDistributionConfig({ Id: distributionId })
     .promise();
@@ -113,7 +121,7 @@ export const updateCloudFrontDistribution = async (
     Id: distributionId,
     IfMatch: distributionConfigResponse.ETag,
     DistributionConfig: {
-      CallerReference: distributionConfigResponse.DistributionConfig.CallerReference,
+      ...distributionConfigResponse.DistributionConfig,
       Enabled: inputs.enabled as boolean,
       Comment: inputs.comment as string,
       DefaultCacheBehavior: getDefaultCacheBehavior(Origins.Items[0].Id, inputs.defaults),
@@ -147,11 +155,8 @@ const disableCloudFrontDistribution = async (cf: CloudFront, distributionId: str
     Id: distributionId,
     IfMatch: distributionConfigResponse.ETag,
     DistributionConfig: {
-      CallerReference: distributionConfigResponse.DistributionConfig.CallerReference,
+      ...distributionConfigResponse.DistributionConfig,
       Enabled: false,
-      Comment: distributionConfigResponse.DistributionConfig.Comment,
-      DefaultCacheBehavior: distributionConfigResponse.DistributionConfig.DefaultCacheBehavior,
-      Origins: distributionConfigResponse.DistributionConfig.Origins,
     },
   };
 
@@ -164,7 +169,10 @@ const disableCloudFrontDistribution = async (cf: CloudFront, distributionId: str
   };
 };
 
-export const deleteCloudFrontDistribution = async (cf: CloudFront, distributionId: string) => {
+export const deleteCloudFrontDistribution = async (
+  cf: CloudFront,
+  distributionId: string
+): Promise<void> => {
   try {
     const res = await cf.getDistributionConfig({ Id: distributionId }).promise();
 

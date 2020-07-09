@@ -9,7 +9,7 @@ import {
 } from 'aws-sdk';
 import CloudFrontComponent from '../serverless';
 
-jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
+jest.mock('aws-sdk', () => require('./aws-sdk.mock'));
 
 describe('Input origin as a custom url', () => {
   let component: CloudFrontComponent;

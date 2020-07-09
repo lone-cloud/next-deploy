@@ -1,4 +1,4 @@
-import { PublicDirectoryCache } from '@next-deploy/aws-s3-utils/types';
+import { PublicDirectoryCache } from '@next-deploy/aws-s3/types';
 import { CloudFrontInputs } from '@next-deploy/aws-cloudfront/types';
 
 type AwsComponentInputs = {

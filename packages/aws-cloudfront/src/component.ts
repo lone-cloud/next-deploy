@@ -1,4 +1,4 @@
-import { CloudFront, S3 } from 'aws-sdk';
+import { CloudFront, S3, Credentials } from 'aws-sdk';
 import { equals } from 'ramda';
 import { Component } from '@serverless/core';
 
@@ -8,7 +8,7 @@ import {
   updateCloudFrontDistribution,
   deleteCloudFrontDistribution,
 } from './lib';
-import { Credentials, CloudFrontInputs } from '../types';
+import { CloudFrontInputs } from '../types';
 
 class CloudFrontComponent extends Component {
   static createInvalidation({
@@ -23,7 +23,7 @@ class CloudFrontComponent extends Component {
     return createInvalidation({ credentials, distributionId, paths });
   }
 
-  async default(inputs: CloudFrontInputs): Promise<any> {
+  async default(inputs: CloudFrontInputs): Promise<Record<string, any>> {
     this.context.status('Deploying');
 
     inputs.region = inputs.region || 'us-east-1';

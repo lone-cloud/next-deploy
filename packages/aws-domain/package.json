@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@serverless/core": "^1.1.2",
-    "aws-sdk": "^2.709.0"
+    "aws-sdk": "^2.712.0"
   },
   "devDependencies": {
     "typescript": "^3.9.6"

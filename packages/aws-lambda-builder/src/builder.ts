@@ -141,11 +141,11 @@ class Builder {
     return Promise.all([
       ...copyTraces,
       fse.copy(
-        require.resolve('aws-lambda-builder/dist/default-handler.js'),
+        require.resolve('@next-deploy/aws-lambda-builder/dist/default-handler.js'),
         join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'index.js')
       ),
       fse.copy(
-        require.resolve('aws-lambda-builder/dist/compat.js'),
+        require.resolve('@next-deploy/aws-lambda-builder/dist/compat.js'),
         join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'compat.js')
       ),
       fse.writeJson(join(this.outputDir, DEFAULT_LAMBDA_CODE_DIR, 'manifest.json'), buildManifest),
@@ -188,11 +188,11 @@ class Builder {
     return Promise.all([
       ...copyTraces,
       fse.copy(
-        require.resolve('aws-lambda-builder/dist/api-handler.js'),
+        require.resolve('@next-deploy/aws-lambda-builder/dist/api-handler.js'),
         join(this.outputDir, API_LAMBDA_CODE_DIR, 'index.js')
       ),
       fse.copy(
-        require.resolve('aws-lambda-builder/dist/compat.js'),
+        require.resolve('@next-deploy/aws-lambda-builder/dist/compat.js'),
         join(this.outputDir, API_LAMBDA_CODE_DIR, 'compat.js')
       ),
       fse.copy(

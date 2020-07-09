@@ -9,7 +9,7 @@ import {
 
 import { createComponent, createTmpDir } from './test-utils';
 
-jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
+jest.mock('aws-sdk', () => require('./aws-sdk.mock'));
 
 const mockIamRole = jest.fn();
 jest.mock('@serverless/aws-iam-role', () =>

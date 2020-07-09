@@ -23,12 +23,6 @@ type Origin = {
   pathPatterns?: Record<string, PathPatternConfig>;
 };
 
-type Credentials = {
-  accessKeyId: string;
-  secretAccessKey: string;
-  sessionToken?: string;
-};
-
 type Forward = {
   cookies?: string[];
   queryString?: string;

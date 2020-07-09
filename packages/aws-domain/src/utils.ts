@@ -1,9 +1,9 @@
-import { Route53, ACM, CloudFront } from 'aws-sdk';
+import { Route53, ACM, CloudFront, Credentials } from 'aws-sdk';
 import { utils } from '@serverless/core';
 
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { DomainType } from '@next-deploy/aws-component/types';
-import { AwsDomainInputs, Credentials, SubDomain } from '../types';
+import { AwsDomainInputs, SubDomain } from '../types';
 
 const DEFAULT_MINIMUM_PROTOCOL_VERSION = 'TLSv1.2_2018';
 const HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2'; // this is a constant that you can get from here https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
@@ -12,7 +12,10 @@ const HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2'; // this is a constant that you can get 
  * Get Clients
  * - Gets AWS SDK clients to use within this Component
  */
-export const getClients = (credentials: Credentials, region = 'us-east-1') => {
+export const getClients = (
+  credentials: Credentials,
+  region = 'us-east-1'
+): { route53: Route53; acm: ACM; cf: CloudFront } => {
   const route53 = new Route53({
     credentials,
     region,
@@ -143,7 +146,7 @@ export const getCertificateArnByDomain = async (
  * Create Certificate
  * - Creates an AWS ACM Certificate for the specified domain
  */
-export const createCertificate = async (acm: ACM, domain: string) => {
+export const createCertificate = async (acm: ACM, domain: string): Promise<string | undefined> => {
   const wildcardSubDomain = `*.${domain}`;
 
   const params = {
@@ -381,11 +384,7 @@ export const addDomainToCloudfrontDistribution = async (
     IfMatch: distributionConfigResponse.ETag,
     Id: subdomain.distributionId,
     DistributionConfig: {
-      CallerReference: distributionConfigResponse.DistributionConfig.CallerReference,
-      Comment: distributionConfigResponse.DistributionConfig.Comment,
-      DefaultCacheBehavior: distributionConfigResponse.DistributionConfig.DefaultCacheBehavior,
-      Enabled: distributionConfigResponse.DistributionConfig.Enabled,
-      Origins: distributionConfigResponse.DistributionConfig.Origins,
+      ...distributionConfigResponse.DistributionConfig,
       Aliases: {
         Quantity: 1,
         Items: [subdomain.domain],
@@ -443,11 +442,7 @@ export const removeDomainFromCloudFrontDistribution = async (
     Id: subdomain.distributionId,
     IfMatch: distributionConfigResponse.ETag,
     DistributionConfig: {
-      CallerReference: distributionConfigResponse.DistributionConfig.CallerReference,
-      Comment: distributionConfigResponse.DistributionConfig.Comment,
-      DefaultCacheBehavior: distributionConfigResponse.DistributionConfig.DefaultCacheBehavior,
-      Enabled: distributionConfigResponse.DistributionConfig.Enabled,
-      Origins: distributionConfigResponse.DistributionConfig.Origins,
+      ...distributionConfigResponse.DistributionConfig,
       Aliases: {
         Quantity: 0,
         Items: [],

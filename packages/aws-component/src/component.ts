@@ -3,7 +3,7 @@ import { exists, readJSON } from 'fs-extra';
 import { resolve, join } from 'path';
 
 import Builder from '@next-deploy/aws-lambda-builder';
-import { uploadStaticAssets } from '@next-deploy/aws-s3-utils';
+import { uploadStaticAssets } from '@next-deploy/aws-s3';
 import AwsCloudFront from '@next-deploy/aws-cloudfront';
 import { getDomains } from './utils';
 import {
@@ -14,8 +14,9 @@ import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { Origin } from '@next-deploy/aws-cloudfront/types';
 import { BuildOptions, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
 
-export const DEFAULT_LAMBDA_CODE_DIR = '.serverless_nextjs/default-lambda';
-export const API_LAMBDA_CODE_DIR = '.serverless_nextjs/api-lambda';
+export const BUILD_DIR = '.next-deploy-tmp';
+export const DEFAULT_LAMBDA_CODE_DIR = '.next-deploy-tmp/default-lambda';
+export const API_LAMBDA_CODE_DIR = '.next-deploy-tmp/api-lambda';
 
 class AwsComponent extends Component {
   async default(
@@ -33,7 +34,7 @@ class AwsComponent extends Component {
   }
 
   readDefaultBuildManifest(nextConfigPath: string): Promise<BuildManifest> {
-    return readJSON(join(nextConfigPath, '.serverless_nextjs/default-lambda/manifest.json'));
+    return readJSON(join(nextConfigPath, `${DEFAULT_LAMBDA_CODE_DIR}/manifest.json`));
   }
 
   validatePathPatterns(pathPatterns: string[], buildManifest: BuildManifest): void {
@@ -117,7 +118,7 @@ class AwsComponent extends Component {
   async readApiBuildManifest(
     nextConfigPath: string
   ): Promise<undefined | OriginRequestApiHandlerManifest> {
-    const path = join(nextConfigPath, '.serverless_nextjs/api-lambda/manifest.json');
+    const path = join(nextConfigPath, `${API_LAMBDA_CODE_DIR}/manifest.json`);
 
     // @ts-ignore
     return (await exists(path)) ? readJSON(path) : Promise.resolve(undefined);
@@ -138,7 +139,7 @@ class AwsComponent extends Component {
     };
 
     if (buildConfig.enabled) {
-      const builder = new Builder(nextConfigPath, join(nextConfigPath, '.serverless_nextjs'), {
+      const builder = new Builder(nextConfigPath, join(nextConfigPath, BUILD_DIR), {
         cmd: buildConfig.cmd,
         cwd: buildConfig.cwd,
         args: buildConfig.args,
@@ -166,7 +167,7 @@ class AwsComponent extends Component {
     ]);
 
     const [bucket, cloudFront, defaultEdgeLambda, apiEdgeLambda] = await Promise.all([
-      this.load('@serverless/aws-s3'),
+      this.load('@next-deploy/aws-s3'),
       this.load('@next-deploy/aws-cloudfront'),
       this.load('@next-deploy/aws-lambda', 'defaultEdgeLambda'),
       this.load('@next-deploy/aws-lambda', 'apiEdgeLambda'),
@@ -370,7 +371,7 @@ class AwsComponent extends Component {
     };
 
     // make sure that origin-response is not set.
-    // this is reserved for serverless-next.js usage
+    // this is reserved for our usage
     const defaultLambdaAtEdgeConfig = {
       ...(defaultCloudfrontInputs['lambda@edge'] || {}),
     };
@@ -427,7 +428,7 @@ class AwsComponent extends Component {
 
   async remove(): Promise<void> {
     const [bucket, cloudfront, domain] = await Promise.all([
-      this.load('@serverless/aws-s3'),
+      this.load('@next-deploy/aws-s3'),
       this.load('@next-deploy/aws-cloudfront'),
       this.load('@next-deploy/aws-domain'),
     ]);

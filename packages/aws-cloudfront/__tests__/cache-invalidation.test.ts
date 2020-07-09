@@ -1,7 +1,7 @@
 import { CloudFront, mockCreateInvalidation } from 'aws-sdk';
 import createInvalidation, { ALL_FILES_PATH } from '../src/lib/createInvalidation';
 
-jest.mock('aws-sdk', () => require('../__mocks__/aws-sdk.mock'));
+jest.mock('aws-sdk', () => require('./aws-sdk.mock'));
 
 const invalidate = (options = {}): Promise<CloudFront.CreateInvalidationResult> => {
   return createInvalidation({

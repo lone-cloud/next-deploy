@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import path from 'path';
 
 import { mockDomain } from '@next-deploy/aws-domain';
-import { mockS3 } from '@serverless/aws-s3';
+import { mockS3 } from '@next-deploy/aws-s3';
 import { mockUpload } from 'aws-sdk';
 import { mockLambda, mockLambdaPublish } from '@next-deploy/aws-lambda';
 import { mockCloudFront } from '@next-deploy/aws-cloudfront';
@@ -464,7 +464,7 @@ describe('Custom inputs', () => {
     [undefined, {}],
     // empty input
     [{}, {}],
-    // ignores origin-request and origin-response triggers as they're reserved by serverless-next.js
+    // ignores origin-request and origin-response triggers as they're reserved by us
     [
       {
         defaults: {

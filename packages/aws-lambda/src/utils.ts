@@ -161,7 +161,7 @@ export const updateLambdaCode = async ({
   lambda: Lambda;
   name: string;
   zipPath: string;
-  bucket: any;
+  bucket: string;
 }): Promise<string | undefined> => {
   const functionCodeParams: Lambda.Types.UpdateFunctionCodeRequest = {
     FunctionName: name,

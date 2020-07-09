@@ -1,9 +1,9 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "sourceMap": false,
     "removeComments": true,
     "outDir": "dist"
   },
-  "include": ["./cli/", ".d.ts"]
+  "include": ["./src/", "../../.d.ts"]
 }
