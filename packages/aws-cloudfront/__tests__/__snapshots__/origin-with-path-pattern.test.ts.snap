@@ -198,7 +198,6 @@ Object {
       ],
       "Quantity": 1,
     },
-    "CallerReference": undefined,
     "Comment": "",
     "DefaultCacheBehavior": Object {
       "AllowedMethods": Object {

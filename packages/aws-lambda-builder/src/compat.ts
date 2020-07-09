@@ -186,14 +186,16 @@ const handler = ({
   };
   res.write = (chunk: any) => {
     if (!response.body) {
-      response.body = Buffer.from('').toString();
+      // @ts-ignore
+      response.body = Buffer.from('');
     }
 
+    // @ts-ignore
     response.body = Buffer.concat([
-      //@ts-ignore
+      // @ts-ignore
       response.body,
       Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk),
-    ]).toString();
+    ]);
 
     return true;
   };

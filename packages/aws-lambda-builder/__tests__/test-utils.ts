@@ -2,9 +2,7 @@ import path from 'path';
 import { remove } from 'fs-extra';
 import { OriginRequestEvent } from '../types';
 
-export const cleanupDir = (dir: string): Promise<void> => {
-  return remove(dir);
-};
+export const cleanupDir = (dir: string): Promise<void> => remove(dir);
 
 export const removeNewLineChars = (text: string): string => text.replace(/(\r\n|\n|\r)/gm, '');
 

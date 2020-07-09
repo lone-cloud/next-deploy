@@ -1,6 +1,6 @@
 import { createCloudFrontEvent } from '../test-utils';
 import { handler } from '../../src/api-handler';
-import { CloudFrontResponseResult } from 'next-aws-cloudfront/node_modules/@types/aws-lambda';
+import { CloudFrontResponseResult } from 'aws-lambda';
 
 jest.mock('../../src/manifest.json', () => require('./api-build-manifest.json'), {
   virtual: true,

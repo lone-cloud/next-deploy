@@ -11,5 +11,6 @@ const s3 = jest.fn(() => {
 
 s3.mockS3Upload = mockS3Upload;
 s3.mockS3 = mockS3;
+s3.uploadStaticAssets = mockS3Upload;
 
-export default s3;
+module.exports = s3;

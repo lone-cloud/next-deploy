@@ -1,4 +1,5 @@
 const mockDomain = jest.fn();
+
 const domain = jest.fn(() => {
   const domain = mockDomain;
   domain.init = () => {};
@@ -8,5 +9,4 @@ const domain = jest.fn(() => {
 });
 
 domain.mockDomain = mockDomain;
-
-export default domain;
+module.exports = domain;

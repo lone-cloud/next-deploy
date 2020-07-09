@@ -112,7 +112,6 @@ Object {
       "Items": Array [],
       "Quantity": 0,
     },
-    "CallerReference": undefined,
     "Comment": "",
     "DefaultCacheBehavior": Object {
       "AllowedMethods": Object {

@@ -19,8 +19,8 @@ module.exports = {
   testPathIgnorePatterns: [
     '/.next/',
     '/node_modules/',
-    '/fixtures/',
-    '/fixture/',
+    '/*fixtures/',
+    '/*fixture/',
     '/examples/',
     'test-utils.ts',
     'aws-sdk.mock.ts',

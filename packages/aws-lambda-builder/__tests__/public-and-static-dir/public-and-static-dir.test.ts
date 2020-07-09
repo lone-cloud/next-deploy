@@ -1,8 +1,7 @@
 import execa from 'execa';
-import Builder from '../../src/build';
 import fse, { readJSON } from 'fs-extra';
 import { join } from 'path';
-import { DEFAULT_LAMBDA_CODE_DIR } from '../../src/build';
+import Builder, { DEFAULT_LAMBDA_CODE_DIR } from '../../src/builder';
 import { cleanupDir } from '../test-utils';
 import { OriginRequestDefaultHandlerManifest } from '../../types';
 

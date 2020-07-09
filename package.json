@@ -14,7 +14,8 @@
     "edge"
   ],
   "scripts": {
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --watch",
+    "test:ci": "jest --runInBand",
     "build": "lerna exec -- yarn",
     "test:watch": "yarn test --watch --collect-coverage=false",
     "publish": "lerna publish --conventional-commits",
@@ -67,6 +68,8 @@
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "typescript": "^3.9.6"
   },
   "husky": {

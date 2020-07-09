@@ -1,4 +1,5 @@
-export const mockCloudFront = jest.fn();
+const mockCloudFront = jest.fn();
+const mockCreateInvalidation = jest.fn();
 const cloudfront = jest.fn(() => {
   const cloudFront = mockCloudFront;
   cloudFront.init = () => {};
@@ -7,6 +8,8 @@ const cloudfront = jest.fn(() => {
   return cloudFront;
 });
 
+cloudfront.mockCreateInvalidation = mockCreateInvalidation;
 cloudfront.mockCloudFront = mockCloudFront;
+cloudfront.createInvalidation = mockCreateInvalidation;
 
-export default cloudfront;
+module.exports = cloudfront;

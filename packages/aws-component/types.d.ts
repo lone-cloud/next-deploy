@@ -2,7 +2,7 @@ import { PublicDirectoryCache } from '@next-deploy/aws-s3/types';
 import { CloudFrontInputs } from '@next-deploy/aws-cloudfront/types';
 
 type AwsComponentInputs = {
-  build?: BuildOptions; // TODO: figure out a way to properly type this as "BuildOptions | boolean" doesn't work correctly
+  build?: BuildOptions | boolean;
   nextConfigDir?: string;
   nextStaticDir?: string;
   bucketName?: string;
@@ -39,4 +39,9 @@ type LambdaInput = {
   timeout: number;
   runtime: string;
   name?: string;
+};
+
+type DeploymentResult = {
+  appUrl: string;
+  bucketName: string;
 };

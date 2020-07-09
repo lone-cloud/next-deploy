@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 import path from 'path';
 import fse from 'fs-extra';
 import { PrerenderManifest } from 'next/dist/build/index';
@@ -28,7 +28,7 @@ export const IMMUTABLE_CACHE_CONTROL_HEADER = 'public, max-age=31536000, immutab
 
 const uploadStaticAssets = async (
   options: UploadStaticAssetsOptions
-): Promise<AWS.S3.ManagedUpload.SendData[]> => {
+): Promise<S3.ManagedUpload.SendData[]> => {
   const { bucketName, nextConfigDir, nextStaticDir = nextConfigDir } = options;
   const s3 = await S3ClientFactory({
     bucketName,
@@ -108,7 +108,7 @@ const uploadStaticAssets = async (
   const uploadPublicOrStaticDirectory = async (
     directory: 'public' | 'static',
     publicDirectoryCache?: PublicDirectoryCache
-  ): Promise<Promise<AWS.S3.ManagedUpload.SendData>[]> => {
+  ): Promise<Promise<S3.ManagedUpload.SendData>[]> => {
     const directoryPath = path.join(nextStaticDir, directory);
     if (!(await fse.pathExists(directoryPath))) {
       return Promise.resolve([]);

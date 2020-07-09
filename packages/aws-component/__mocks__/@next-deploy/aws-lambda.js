@@ -1,5 +1,6 @@
 const mockLambda = jest.fn();
 const mockLambdaPublish = jest.fn();
+
 const lambda = jest.fn(() => {
   const lambda = mockLambda;
   lambda.init = () => {};
@@ -12,4 +13,4 @@ const lambda = jest.fn(() => {
 lambda.mockLambda = mockLambda;
 lambda.mockLambdaPublish = mockLambdaPublish;
 
-export default lambda;
+module.exports = lambda;

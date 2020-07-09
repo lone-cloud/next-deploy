@@ -3,7 +3,6 @@ import path from 'path';
 
 import { mockDomain } from '@next-deploy/aws-domain';
 import { mockS3 } from '@next-deploy/aws-s3';
-import { mockUpload } from 'aws-sdk';
 import { mockLambda, mockLambdaPublish } from '@next-deploy/aws-lambda';
 import { mockCloudFront } from '@next-deploy/aws-cloudfront';
 
@@ -22,7 +21,7 @@ const createNextComponent = (inputs) => {
   return component;
 };
 
-const mockServerlessComponentDependencies = ({ expectedDomain }) => {
+const mockAwsComponentDependencies = ({ expectedDomain }) => {
   mockS3.mockResolvedValue({
     name: 'bucket-xyz',
   });
@@ -77,7 +76,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({});
 
@@ -115,7 +114,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({
+      mockAwsComponentDependencies({
         expectedDomain,
       });
 
@@ -168,95 +167,6 @@ describe('Custom inputs', () => {
     });
   });
 
-  describe.each`
-    nextConfigDir      | nextStaticDir      | fixturePath
-    ${'nextConfigDir'} | ${'nextStaticDir'} | ${path.join(__dirname, './fixtures/split-app')}
-  `('nextConfigDir=$nextConfigDir, nextStaticDir=$nextStaticDir', ({ fixturePath, ...inputs }) => {
-    let tmpCwd;
-
-    beforeEach(async () => {
-      tmpCwd = process.cwd();
-      process.chdir(fixturePath);
-
-      mockServerlessComponentDependencies({});
-
-      const component = createNextComponent({});
-
-      componentOutputs = await component({
-        nextConfigDir: inputs.nextConfigDir,
-        nextStaticDir: inputs.nextStaticDir,
-      });
-    });
-
-    afterEach(() => {
-      process.chdir(tmpCwd);
-      return cleanupFixtureDirectory(fixturePath);
-    });
-
-    it('uploads static assets to S3 correctly', () => {
-      expect(mockUpload).toBeCalledWith(
-        expect.objectContaining({
-          Key: expect.stringMatching('_next/static/test-build-id/placeholder.js'),
-        })
-      );
-      expect(mockUpload).toBeCalledWith(
-        expect.objectContaining({
-          Key: expect.stringMatching('static-pages/terms.html'),
-        })
-      );
-      expect(mockUpload).toBeCalledWith(
-        expect.objectContaining({
-          Key: expect.stringMatching('static/donotdelete.txt'),
-        })
-      );
-      expect(mockUpload).toBeCalledWith(
-        expect.objectContaining({
-          Key: expect.stringMatching('public/favicon.ico'),
-        })
-      );
-    });
-  });
-
-  describe.each`
-    publicDirectoryCache                                           | expected
-    ${undefined}                                                   | ${'public, max-age=31536000, must-revalidate'}
-    ${false}                                                       | ${undefined}
-    ${{ test: '/.(ico|png)$/i', value: 'public, max-age=306000' }} | ${'public, max-age=306000'}
-  `(
-    'input=inputPublicDirectoryCache, expected=$expectedPublicDirectoryCache',
-    ({ publicDirectoryCache, expected }) => {
-      let tmpCwd;
-      const fixturePath = path.join(__dirname, './fixtures/simple-app');
-
-      beforeEach(async () => {
-        tmpCwd = process.cwd();
-        process.chdir(fixturePath);
-
-        mockServerlessComponentDependencies({});
-
-        const component = createNextComponent({});
-
-        componentOutputs = await component({
-          publicDirectoryCache,
-        });
-      });
-
-      afterEach(() => {
-        process.chdir(tmpCwd);
-        return cleanupFixtureDirectory(fixturePath);
-      });
-
-      it(`sets the ${expected} Cache - Control header on ${publicDirectoryCache} `, () => {
-        expect(mockUpload).toBeCalledWith(
-          expect.objectContaining({
-            Key: expect.stringMatching('public/favicon.ico'),
-            CacheControl: expected,
-          })
-        );
-      });
-    }
-  );
-
   describe.each([
     [undefined, { defaultMemory: 512, apiMemory: 512 }],
     [{}, { defaultMemory: 512, apiMemory: 512 }],
@@ -275,7 +185,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({
         memory: inputMemory,
@@ -328,7 +238,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({});
 
@@ -377,7 +287,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({});
 
@@ -426,7 +336,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({});
 
@@ -669,7 +579,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
 
       const component = createNextComponent({});
 
@@ -702,7 +612,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
     });
 
     afterEach(() => {
@@ -731,7 +641,7 @@ describe('Custom inputs', () => {
       tmpCwd = process.cwd();
       process.chdir(fixturePath);
 
-      mockServerlessComponentDependencies({});
+      mockAwsComponentDependencies({});
     });
 
     afterEach(() => {

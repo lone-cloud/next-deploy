@@ -1,8 +1,8 @@
 node_modules
 /coverage.data
 /coverage/
-.serverless
+.next-deploy/
 .next
-.serverless_nextjs
+.next-deploy-tmp/
 dist
 yarn-error.log

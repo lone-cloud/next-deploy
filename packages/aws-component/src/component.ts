@@ -1,9 +1,9 @@
 import { Component } from '@serverless/core';
-import { exists, readJSON } from 'fs-extra';
+import { pathExists, readJSON } from 'fs-extra';
 import { resolve, join } from 'path';
 
 import Builder from '@next-deploy/aws-lambda-builder';
-import { uploadStaticAssets } from '@next-deploy/aws-s3';
+import AwsS3 from '@next-deploy/aws-s3';
 import AwsCloudFront from '@next-deploy/aws-cloudfront';
 import { getDomains } from './utils';
 import {
@@ -12,20 +12,20 @@ import {
 } from '@next-deploy/aws-lambda-builder/types';
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { Origin } from '@next-deploy/aws-cloudfront/types';
-import { BuildOptions, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
+import {
+  DeploymentResult,
+  BuildOptions,
+  AwsComponentInputs,
+  LambdaType,
+  LambdaInput,
+} from '../types';
 
 export const BUILD_DIR = '.next-deploy-tmp';
 export const DEFAULT_LAMBDA_CODE_DIR = '.next-deploy-tmp/default-lambda';
 export const API_LAMBDA_CODE_DIR = '.next-deploy-tmp/api-lambda';
 
 class AwsComponent extends Component {
-  async default(
-    inputs: AwsComponentInputs = {}
-  ): Promise<{
-    appUrl: string;
-    bucketName: string;
-  }> {
-    // @ts-ignore
+  async default(inputs: AwsComponentInputs = {}): Promise<DeploymentResult> {
     if (inputs.build !== false) {
       await this.build(inputs);
     }
@@ -115,18 +115,18 @@ class AwsComponent extends Component {
     }
   }
 
-  async readApiBuildManifest(
-    nextConfigPath: string
-  ): Promise<undefined | OriginRequestApiHandlerManifest> {
+  async readApiBuildManifest(nextConfigPath: string): Promise<OriginRequestApiHandlerManifest> {
     const path = join(nextConfigPath, `${API_LAMBDA_CODE_DIR}/manifest.json`);
 
-    // @ts-ignore
-    return (await exists(path)) ? readJSON(path) : Promise.resolve(undefined);
+    return (await pathExists(path)) ? readJSON(path) : Promise.resolve(undefined);
   }
 
   async build(inputs: AwsComponentInputs = {}): Promise<void> {
     const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
-
+    const buildCwd =
+      typeof inputs.build === 'boolean' || typeof inputs.build === 'undefined' || !inputs.build.cwd
+        ? nextConfigPath
+        : resolve(inputs.build.cwd);
     const buildConfig: BuildOptions = {
       enabled: inputs.build
         ? // @ts-ignore
@@ -135,7 +135,7 @@ class AwsComponent extends Component {
       cmd: 'node_modules/.bin/next',
       args: ['build'],
       ...(typeof inputs.build === 'object' ? inputs.build : {}),
-      cwd: inputs.build && inputs.build.cwd ? resolve(inputs.build.cwd) : nextConfigPath,
+      cwd: buildCwd,
     };
 
     if (buildConfig.enabled) {
@@ -149,12 +149,7 @@ class AwsComponent extends Component {
     }
   }
 
-  async deploy(
-    inputs: AwsComponentInputs = {}
-  ): Promise<{
-    appUrl: string;
-    bucketName: string;
-  }> {
+  async deploy(inputs: AwsComponentInputs = {}): Promise<DeploymentResult> {
     const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
 
     const nextStaticPath = inputs.nextStaticDir ? resolve(inputs.nextStaticDir) : nextConfigPath;
@@ -179,7 +174,7 @@ class AwsComponent extends Component {
       region: inputs.bucketRegion || 'us-east-1',
     });
 
-    await uploadStaticAssets({
+    await AwsS3.uploadStaticAssets({
       bucketName: bucketOutputs.name,
       nextConfigDir: nextConfigPath,
       nextStaticDir: nextStaticPath,
@@ -244,23 +239,21 @@ class AwsComponent extends Component {
       (Object.keys(apiBuildManifest.apis.nonDynamic).length > 0 ||
         Object.keys(apiBuildManifest.apis.dynamic).length > 0);
 
-    const getLambdaMemory = (lambdaType: LambdaType) =>
-      typeof inputs.memory === 'number'
-        ? inputs.memory
-        : (inputs.memory && inputs.memory[lambdaType]) || 512;
+    const getLambdaInputValue = (
+      inputKey: 'memory' | 'timeout' | 'name' | 'runtime',
+      lambdaType: LambdaType,
+      defaultValue: string | number | undefined
+    ): string | number | undefined => {
+      const inputValue = inputs[inputKey];
+      if (typeof inputValue === 'string' || typeof inputValue === 'number') {
+        return inputValue;
+      }
 
-    const getLambdaTimeout = (lambdaType: LambdaType) =>
-      typeof inputs.timeout === 'number'
-        ? inputs.timeout
-        : (inputs.timeout && inputs.timeout[lambdaType]) || 10;
-
-    const getLambdaName = (lambdaType: LambdaType) =>
-      typeof inputs.name === 'string' ? inputs.name : inputs.name && inputs.name[lambdaType];
-
-    const getLambdaRuntime = (lambdaType: LambdaType) =>
-      typeof inputs.runtime === 'string'
-        ? inputs.runtime
-        : (inputs.runtime && inputs.runtime[lambdaType]) || 'nodejs12.x';
+      if (!inputValue) {
+        return defaultValue;
+      }
+      return inputValue[lambdaType] || defaultValue;
+    };
 
     if (hasAPIPages) {
       const apiEdgeLambdaInput: LambdaInput = {
@@ -276,12 +269,11 @@ class AwsComponent extends Component {
               inputs.policy || 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
           },
         },
-        memory: getLambdaMemory('apiLambda'),
-        timeout: getLambdaTimeout('apiLambda'),
-        runtime: getLambdaRuntime('apiLambda'),
+        memory: getLambdaInputValue('memory', 'apiLambda', 512) as number,
+        timeout: getLambdaInputValue('timeout', 'apiLambda', 10) as number,
+        runtime: getLambdaInputValue('runtime', 'apiLambda', 'nodejs12.x') as string,
+        name: getLambdaInputValue('name', 'apiLambda', undefined) as string | undefined,
       };
-      const apiLambdaName = getLambdaName('apiLambda');
-      if (apiLambdaName) apiEdgeLambdaInput.name = apiLambdaName;
 
       const apiEdgeLambdaOutputs = await apiEdgeLambda(apiEdgeLambdaInput);
 
@@ -307,12 +299,11 @@ class AwsComponent extends Component {
           arn: inputs.policy || 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
         },
       },
-      memory: getLambdaMemory('defaultLambda'),
-      timeout: getLambdaTimeout('defaultLambda'),
-      runtime: getLambdaRuntime('defaultLambda'),
+      memory: getLambdaInputValue('memory', 'defaultLambda', 512) as number,
+      timeout: getLambdaInputValue('timeout', 'defaultLambda', 10) as number,
+      runtime: getLambdaInputValue('runtime', 'defaultLambda', 'nodejs12.x') as string,
+      name: getLambdaInputValue('name', 'defaultLambda', undefined) as string | undefined,
     };
-    const defaultLambdaName = getLambdaName('defaultLambda');
-    if (defaultLambdaName) defaultEdgeLambdaInput.name = defaultLambdaName;
 
     const defaultEdgeLambdaOutputs = await defaultEdgeLambda(defaultEdgeLambdaInput);
 
