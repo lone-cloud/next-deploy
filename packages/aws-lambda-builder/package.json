@@ -9,8 +9,8 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "@zeit/node-file-trace": "^0.6.5",
-    "execa": "^4.0.2",
+    "@zeit/node-file-trace": "^0.7.0",
+    "execa": "^4.0.3",
     "fs-extra": "^9.0.1",
     "path-to-regexp": "^6.1.0"
   },

@@ -1,27 +1,21 @@
 {
   "name": "next-deploy",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Effortless deployment for Next.js apps.",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
-  "main": "index.js",
   "keywords": [
     "next",
     "deploy",
-    "serverless",
     "nextjs",
+    "serverless",
     "lambda",
     "cloudfront",
     "edge"
   ],
   "scripts": {
-    "test": "jest --runInBand --watch",
+    "test": "jest --runInBand --watch --collect-coverage=false",
     "test:ci": "jest --runInBand",
-    "build": "lerna exec -- yarn",
-    "test:watch": "yarn test --watch --collect-coverage=false",
-    "publish": "lerna publish --conventional-commits",
-    "prepublishOnly": "yarn test",
-    "prerelease": "lerna publish --conventional-commits --conventional-prerelease",
-    "graduate": "lerna publish --conventional-commits --conventional-graduate"
+    "build": "lerna exec -- yarn"
   },
   "bin": {
     "next-deploy": "./packages/cli/dist/index.js"
@@ -44,6 +38,7 @@
     "@next-deploy/aws-lambda-builder": "link:./packages/aws-lambda-builder",
     "@types/archiver": "^3.1.0",
     "@types/aws-lambda": "^8.10.58",
+    "@types/death": "^1.1.0",
     "@types/execa": "^2.0.0",
     "@types/fs-extra": "^9.0.1",
     "@types/jest": "^26.0.4",
@@ -58,7 +53,7 @@
     "@types/webpack": "^4.41.21",
     "@typescript-eslint/eslint-plugin": "^3.6.0",
     "@typescript-eslint/parser": "^3.6.0",
-    "aws-sdk": "^2.712.0",
+    "aws-sdk": "^2.713.0",
     "eslint": "^7.4.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",

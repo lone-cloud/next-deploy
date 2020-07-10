@@ -269,7 +269,7 @@ class Context {
 
     content += ` ${this.metrics.entity}`;
     content += ` ${grey(figures.pointerSmall)} ${grey(this.metrics.status.message)}`;
-    content += ` ${grey(this.metrics.status.loadingDots)}`;
+    content += `${grey(this.metrics.status.loadingDots)}`;
     process.stdout.write(content);
     console.log();
 

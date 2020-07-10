@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "aws-sdk": "^2.712.0",
+    "aws-sdk": "^2.713.0",
     "fs-extra": "^9.0.1",
     "klaw": "^3.0.0",
     "klaw-sync": "^6.0.0",

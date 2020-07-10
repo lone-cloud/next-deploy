@@ -1,17 +1,10 @@
 import path from 'path';
-import ora from 'ora';
 
 import { BaseDeploymentOptions } from '../types';
 import { DEFAULT_ENGINE, SUPPORTED_ENGINES } from './config';
 import Context from './context';
-import { getColor } from './utils';
 
-const METHOD_NAME_MAP = [
-  { name: 'default', action: 'Deploying...' },
-  { name: 'build', action: 'Building...' },
-  { name: 'deploy', action: 'Deploying...' },
-  { name: 'remove', action: 'Removing...' },
-];
+const METHOD_NAME_MAP = ['default', 'build', 'deploy', 'remove'];
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
   const {
@@ -26,7 +19,7 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     root: process.cwd(),
     stateRoot: path.join(process.cwd(), '.next-deploy'),
     debug,
-    entity: engine,
+    entity: engine.toUpperCase(),
   });
 
   if (engineIndex === -1) {
@@ -40,39 +33,24 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
   try {
     const EngineComponent = await import(SUPPORTED_ENGINES[engineIndex].component);
     const component = new EngineComponent.default(undefined, context);
-    const method = METHOD_NAME_MAP.find(({ name }) => name === methodName);
-    const spinner = ora(method?.action);
-    let intervalHandle: NodeJS.Timeout | undefined = undefined;
 
-    if (!method) {
-      throw Error(
-        `Unsupported method ${method}. Try one of: ${METHOD_NAME_MAP.map(({ name }) => name).join(
-          ', '
-        )}.`
-      );
+    if (!METHOD_NAME_MAP.includes(methodName)) {
+      throw Error(`Unsupported method ${methodName}. Try one of: ${METHOD_NAME_MAP.join(', ')}.`);
     }
 
     onPreDeploy && (await onPreDeploy());
 
     await component.init();
 
-    if (!debug) {
-      spinner.color = 'yellow';
+    context.metrics.lastDebugTime = new Date().getTime();
+    context.statusEngineStart();
 
-      intervalHandle = setInterval(() => {
-        spinner.color = getColor(spinner?.color);
-      }, 2000);
-      spinner.start();
-    }
-
-    component.context.instance.metrics.lastDebugTime = new Date().getTime();
-
-    const outputs = await component[method.name](componentOptions);
-
-    intervalHandle && clearInterval(intervalHandle);
-    spinner.stop();
+    const outputs = await component[methodName](componentOptions);
 
     context.renderOutputs(outputs);
+
+    console.log();
+
     onPostDeploy && (await onPostDeploy());
 
     context.close('done');

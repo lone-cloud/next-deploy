@@ -12,7 +12,6 @@
     "@next-deploy/aws-component": "link:../aws-component",
     "fs-extra": "^9.0.1",
     "minimist": "^1.2.5",
-    "ora": "^4.0.4",
     "prettyoutput": "^1.2.0"
   },
   "devDependencies": {

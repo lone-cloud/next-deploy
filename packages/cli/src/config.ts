@@ -5,4 +5,4 @@ export const SUPPORTED_ENGINES = [
   },
 ];
 export const DEFAULT_ENGINE = 'aws';
-export const DEPLOY_CONFIG_NAME = 'deploy.config.js';
+export const DEPLOY_CONFIG_NAME = 'next-deploy.config.js';
