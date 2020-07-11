@@ -20,9 +20,9 @@ import {
   LambdaInput,
 } from '../types';
 
-export const BUILD_DIR = '.next-deploy-tmp';
-export const DEFAULT_LAMBDA_CODE_DIR = '.next-deploy-tmp/default-lambda';
-export const API_LAMBDA_CODE_DIR = '.next-deploy-tmp/api-lambda';
+export const BUILD_DIR = '.next-deploy-build';
+export const DEFAULT_LAMBDA_CODE_DIR = `${BUILD_DIR}/default-lambda`;
+export const API_LAMBDA_CODE_DIR = `${BUILD_DIR}/api-lambda`;
 
 class AwsComponent extends Component {
   async default(inputs: AwsComponentInputs = {}): Promise<DeploymentResult> {
@@ -145,7 +145,7 @@ class AwsComponent extends Component {
         args: buildConfig.args,
       });
 
-      await builder.build(this.context.instance.debugMode);
+      await builder.build(this.context.instance.debugMode ? this.context.debug : undefined);
     }
   }
 

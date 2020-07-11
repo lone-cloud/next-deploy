@@ -4,7 +4,7 @@ const createOriginAccessIdentity = async (cf: CloudFront) => {
   const { CloudFrontOriginAccessIdentity } = await cf
     .createCloudFrontOriginAccessIdentity({
       CloudFrontOriginAccessIdentityConfig: {
-        CallerReference: 'serverless-managed-cloudfront-access-identity',
+        CallerReference: 'next-deploy-managed-cloudfront-access-identity',
         Comment: 'CloudFront Origin Access Identity created to allow serving private S3 content',
       },
     })

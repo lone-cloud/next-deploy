@@ -11,6 +11,7 @@ type ContextConfig = {
   credentials?: Record<string, unknown>;
   debug?: boolean;
   entity?: string;
+  message?: string;
 };
 
 type ContextMetrics = {

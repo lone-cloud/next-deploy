@@ -5,12 +5,9 @@
   "main": "serverless.js",
   "types": "dist/component.d.ts",
   "scripts": {
-    "prepare": "yarn build",
-    "build": "tsc -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "@serverless/core": "^1.1.2",
-    "aws-sdk": "^2.713.0"
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "typescript": "^3.9.6"

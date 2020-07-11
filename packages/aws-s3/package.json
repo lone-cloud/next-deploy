@@ -5,18 +5,9 @@
   "main": "serverless.js",
   "types": "dist/component.d.ts",
   "scripts": {
-    "prepare": "yarn build",
-    "build": "tsc -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "aws-sdk": "^2.713.0",
-    "fs-extra": "^9.0.1",
-    "klaw": "^3.0.0",
-    "klaw-sync": "^6.0.0",
-    "mime-types": "^2.1.27",
-    "next": "^9.4.4",
-    "regex-parser": "^2.2.10",
-    "s3-stream-upload": "^2.0.2"
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
     "typescript": "^3.9.6"

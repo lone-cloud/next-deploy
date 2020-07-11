@@ -5,16 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepare": "yarn build",
-    "build": "tsc -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "@next-deploy/aws-component": "link:../aws-component",
-    "fs-extra": "^9.0.1",
-    "minimist": "^1.2.5",
-    "prettyoutput": "^1.2.0"
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
+    "@next-deploy/aws-component": "link:../aws-component",
     "typescript": "^3.9.6"
   }
 }

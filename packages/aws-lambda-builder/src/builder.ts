@@ -99,18 +99,18 @@ class Builder {
     reasons: NodeFileTraceReasons,
     handlerDirectory: string
   ): Promise<void>[] {
-    return fileList
-      .filter((file) => {
-        // exclude "initial" files from lambda artifact. These are just the pages themselves
-        // which are copied over separately
-        return !reasons[file] || reasons[file].type !== 'initial';
-      })
-      .map((filePath: string) => {
-        const resolvedFilePath = path.resolve(filePath);
-        const dst = normalizeNodeModules(path.relative(this.serverlessDir, resolvedFilePath));
-
-        return fse.copy(resolvedFilePath, join(this.outputDir, handlerDirectory, dst));
-      });
+    return (
+      fileList
+        // exclude "initial" files from lambda artifact. These are just the pages themselves which are copied over separately
+        .filter(
+          (file) => file !== 'package.json' && (!reasons[file] || reasons[file].type !== 'initial')
+        )
+        .map((filePath: string) => {
+          const resolvedFilePath = path.resolve(filePath);
+          const dst = normalizeNodeModules(path.relative(this.serverlessDir, resolvedFilePath));
+          return fse.copy(resolvedFilePath, join(this.outputDir, handlerDirectory, dst));
+        })
+    );
   }
 
   async buildDefaultLambda(buildManifest: OriginRequestDefaultHandlerManifest): Promise<void[]> {
@@ -208,7 +208,6 @@ class Builder {
     apiBuildManifest: OriginRequestApiHandlerManifest;
   }> {
     const pagesManifest = await this.readPagesManifest();
-
     const buildId = await fse.readFile(path.join(this.dotNextDir, 'BUILD_ID'), 'utf-8');
     const defaultBuildManifest: OriginRequestDefaultHandlerManifest = {
       buildId,
@@ -224,7 +223,6 @@ class Builder {
       },
       publicFiles: {},
     };
-
     const apiBuildManifest: OriginRequestApiHandlerManifest = {
       apis: {
         dynamic: {},
@@ -276,9 +274,7 @@ class Builder {
 
     const publicFiles = await this.readPublicFiles();
 
-    publicFiles.forEach((pf) => {
-      defaultBuildManifest.publicFiles['/' + pf] = pf;
-    });
+    publicFiles.forEach((pf) => (defaultBuildManifest.publicFiles[`/${pf}`] = pf));
 
     return {
       defaultBuildManifest,
@@ -302,7 +298,7 @@ class Builder {
     }
   }
 
-  async build(debugMode: boolean): Promise<void> {
+  async build(debug?: (message: string) => void): Promise<void> {
     const { cmd, args, cwd } = Object.assign(defaultBuildOptions, this.buildOptions);
 
     await this.cleanupDotNext();
@@ -313,12 +309,21 @@ class Builder {
     const { restoreUserConfig } = await createServerlessConfig(cwd, path.join(this.nextConfigDir));
 
     try {
+      if (debug) {
+        const { stdout: nextVersion } = await execa(cmd, ['--version'], {
+          cwd,
+        });
+
+        debug(`Starting a new build with ${nextVersion}`);
+
+        console.log();
+      }
+
       const subprocess = execa(cmd, args, {
         cwd,
       });
 
-      if (debugMode) {
-        // @ts-ignore
+      if (debug && subprocess.stdout) {
         subprocess.stdout.pipe(process.stdout);
       }
 

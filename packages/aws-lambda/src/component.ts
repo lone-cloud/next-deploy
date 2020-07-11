@@ -122,7 +122,7 @@ class LambdaComponent extends Component {
 
     let deploymentBucket;
     if (config.bucket) {
-      deploymentBucket = await this.load('@serverless/aws-s3');
+      deploymentBucket = await this.load('@next-deploy/aws-s3');
     }
 
     const prevLambda = await getLambda({ lambda, ...config });

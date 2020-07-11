@@ -46,28 +46,6 @@ type OriginRequestEvent = {
   Records: [{ cf: { request: CloudFrontRequest } }];
 };
 
-type PreRenderedManifest = {
-  version: 2;
-  routes: {
-    [route: string]: {
-      initialRevalidateSeconds: number | false;
-      srcRoute: string | null;
-      dataRoute: string;
-    };
-  };
-  dynamicRoutes: {
-    [route: string]: {
-      routeRegex: string;
-      fallback: string | false;
-      dataRoute: string;
-      dataRouteRegex: string;
-    };
-  };
-  preview: {
-    previewModeId: string;
-  };
-};
-
 type BuildOptions = {
   args?: string[];
   cwd?: string;

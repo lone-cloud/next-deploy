@@ -5,19 +5,16 @@
   "main": "serverless.js",
   "types": "dist/component.d.ts",
   "scripts": {
-    "prepare": "yarn build",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json"
   },
-  "dependencies": {
-    "@serverless/core": "^1.1.2",
+  "devDependencies": {
     "@next-deploy/aws-cloudfront": "link:../aws-cloudfront",
     "@next-deploy/aws-domain": "link:../aws-domain",
     "@next-deploy/aws-lambda": "link:../aws-lambda",
     "@next-deploy/aws-lambda-builder": "link:../aws-lambda-builder",
     "@next-deploy/aws-s3": "link:../aws-s3",
-    "fs-extra": "^9.0.1"
-  },
-  "devDependencies": {
     "typescript": "^3.9.6"
   }
 }

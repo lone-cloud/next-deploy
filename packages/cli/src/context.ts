@@ -9,7 +9,7 @@ import { utils } from '@serverless/core';
 
 import { ContextMetrics, ContextConfig } from '../types';
 
-const { red, green, dim: grey } = chalk;
+const { red, green, blue, dim: grey } = chalk;
 
 class Context {
   root: string;
@@ -40,7 +40,7 @@ class Context {
       seconds: 0,
       status: {
         running: false,
-        message: 'Running',
+        message: config.message || 'Running',
         loadingDots: '',
         loadingDotCount: 0,
       },
@@ -107,21 +107,6 @@ class Context {
     providers.aws.AWS_ACCESS_KEY_ID = 'accessKeyId';
     providers.aws.AWS_SECRET_ACCESS_KEY = 'secretAccessKey';
     providers.aws.AWS_REGION = 'region';
-
-    providers.google = {};
-    providers.google.GOOGLE_APPLICATION_CREDENTIALS = 'applicationCredentials';
-    providers.google.GOOGLE_PROJECT_ID = 'projectId';
-    providers.google.GOOGLE_CLIENT_EMAIL = 'clientEmail';
-    providers.google.GOOGLE_PRIVATE_KEY = 'privateKey';
-
-    providers.tencent = {};
-    providers.tencent.TENCENT_APP_ID = 'AppId';
-    providers.tencent.TENCENT_SECRET_ID = 'SecretId';
-    providers.tencent.TENCENT_SECRET_KEY = 'SecretKey';
-
-    providers.docker = {};
-    providers.docker.DOCKER_USERNAME = 'username';
-    providers.docker.DOCKER_PASSWORD = 'password';
 
     const credentials: Record<string, any> = {};
 
@@ -193,9 +178,9 @@ class Context {
     if (reason === 'error' && message) {
       message = red(message);
     } else if (reason === 'cancel') {
-      message = red('canceled');
+      message = red('Cancelled ❌');
     } else if (reason === 'done') {
-      message = green('done');
+      message = green('Done ✔');
     }
 
     // Clear any existing content
@@ -204,13 +189,13 @@ class Context {
 
     // Write content
     this.log();
-    let content = ' ';
+    let content = '';
+
     if (this.metrics.useTimer) {
-      content += ` ${grey(this.metrics.seconds + 's')}`;
-      content += ` ${grey(figures.pointerSmall)}`;
+      content += `${grey(this.metrics.seconds + 's')}`;
+      content += ` ${blue(figures.pointerSmall)}`;
     }
-    content += ` ${this.metrics.entity}`;
-    content += ` ${grey(figures.pointerSmall)} ${message}`;
+    content += ` ${message}`;
     process.stdout.write(content);
 
     // Put cursor to starting position for next view
@@ -261,15 +246,14 @@ class Context {
 
     // Write content
     console.log();
-    let content = ' ';
+    let content = '';
     if (this.metrics.useTimer) {
-      content += ` ${grey(this.metrics.seconds + 's')}`;
-      content += ` ${grey(figures.pointerSmall)}`;
+      content += `${grey(this.metrics.seconds + 's')}`;
+      content += ` ${blue(figures.pointerSmall)}`;
     }
 
-    content += ` ${this.metrics.entity}`;
-    content += ` ${grey(figures.pointerSmall)} ${grey(this.metrics.status.message)}`;
-    content += `${grey(this.metrics.status.loadingDots)}`;
+    content += ` ${grey(this.metrics.status.message)}`;
+    content += `${blue(this.metrics.status.loadingDots)}`;
     process.stdout.write(content);
     console.log();
 
@@ -291,7 +275,7 @@ class Context {
     process.stdout.write(ansiEscapes.eraseDown);
     console.log();
 
-    console.log(`  ${msg}`);
+    console.log(msg);
 
     // Put cursor to starting position for next view
     process.stdout.write(ansiEscapes.cursorLeft);
@@ -316,13 +300,13 @@ class Context {
     // Clear any existing content
     process.stdout.write(ansiEscapes.eraseDown);
 
-    console.log(`  ${grey.bold(`DEBUG ${figures.line}`)} ${chalk.white(msg)} ${elapsedTimeSuffix}`);
+    console.log(`${blue.bold(`DEBUG ${figures.line}`)} ${chalk.white(msg)} ${elapsedTimeSuffix}`);
 
     // Put cursor to starting position for next view
     process.stdout.write(ansiEscapes.cursorLeft);
   }
 
-  renderError(errorProp?: string | Error, entity?: string): void {
+  renderError(errorProp?: string | Error): void {
     let error: Error;
 
     // If no argument, skip
@@ -341,12 +325,8 @@ class Context {
     console.log();
 
     // Write Error
-    if (entity) {
-      entity = `${red(entity)} ${red(figures.pointerSmall)} ${red(`error:`)}`;
-      console.log(`  ${entity}`);
-    } else {
-      console.log(`  ${red('error:')}`);
-    }
+    console.log(`${red('error:')}`);
+
     console.log(` `, error);
 
     // Put cursor to starting position for next view

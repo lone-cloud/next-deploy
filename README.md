@@ -1,22 +1,26 @@
 # Next Deploy
 
-Effortless deployment for Next.js apps.
+Effortless deployment for Next.js apps. 🚀
 
-## Contents
+## Table of Contents
 
 - [Getting started](#Getting-started)
+- [Background](#Background)
 - [Configuration](#Configuration)
 - [Advanced Configuration](#Advanced-Configuration)
-- [AWS Permissions](#AWS-Permissions)
-- [Options](#Options)
+- [Options](#Configuration-Options)
 
 ## Getting started
 
-`yarn add next-deploy`
+`yarn add --dev next-deploy`
 
 [Make sure your environment is configured to deploy.](#Configuration)
 
 `yarn next-deploy`
+
+## Background
+
+next-deploy started as a fork of [serverless-next.js](#https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various [serverless-components](#https://github.com/serverless-components/).
 
 ## Configuration
 
@@ -27,7 +31,7 @@ AWS_ACCESS_KEY_ID=******
 AWS_SECRET_ACCESS_KEY=******
 ```
 
-Ensure that your account has [enough permissions to deploy](#AWS-Permissions).
+If your account is restricted, [ensure that you enough permissions to deploy](docs/aws-permissions.md).
 
 ## Advanced Configuration
 
@@ -36,89 +40,39 @@ The deployment configuration is to be provided through `next-deploy.config.js`, 
 ```javascript
 module.exports = {
   debug: false,
-  onPreDeploy: () => console.log('⚡ Starting Deployment ⚡'),
-  onPostDeploy: () => console.log('✅ Deployment Complete ✅'),
+  onPreDeploy: () => console.log('⚡ Starting Deployment'),
 };
 ```
 
 A more advanced configuration that sets more [configurable options](#Options):
 
 ```javascript
-const {
-  BUCKET_NAME,
-  LAMBDA_DESCRIPTION,
-  DEFAULT_LAMBDA_NAME,
-  API_LAMBDA_NAME,
-  SUBDOMAIN,
-  DOMAIN,
-} = process.env;
-
 module.exports = {
-  bucketName: BUCKET_NAME,
-  description: LAMBDA_DESCRIPTION,
+  bucketName: process.env.BUCKET_NAME,
+  description: process.env.LAMBDA_DESCRIPTION,
   name: {
-    defaultLambda: DEFAULT_LAMBDA_NAME,
-    apiLambda: API_LAMBDA_NAME,
+    defaultLambda: process.env.DEFAULT_LAMBDA_NAME,
+    apiLambda: process.env.API_LAMBDA_NAME,
   },
-  domain: [SUBDOMAIN, DOMAIN],
+  domain: [process.env.SUBDOMAIN, process.env.DOMAIN],
   onPreDeploy: () => console.log('⚡ Starting Deployment ⚡'),
   onPostDeploy: () => console.log('✅ Deployment Complete ✅'),
   debug: true,
-  build: false,
+  build: true,
 };
 ```
 
-## AWS Permissions
+## Configuration Options
 
-You will need the following permissions to be able to deploy:
+The next-deploy config varies by the provider (engine) that you're deploying to. All configuration options are optional and come with sensible defaults.
 
-```
-  "acm:DescribeCertificate", // only for custom domains
-  "acm:ListCertificates",    // only for custom domains
-  "acm:RequestCertificate",  // only for custom domains
-  "cloudfront:CreateCloudFrontOriginAccessIdentity",
-  "cloudfront:CreateDistribution",
-  "cloudfront:CreateInvalidation",
-  "cloudfront:GetDistribution",
-  "cloudfront:GetDistributionConfig",
-  "cloudfront:ListCloudFrontOriginAccessIdentities",
-  "cloudfront:ListDistributions",
-  "cloudfront:ListDistributionsByLambdaFunction",
-  "cloudfront:ListDistributionsByWebACLId",
-  "cloudfront:ListFieldLevelEncryptionConfigs",
-  "cloudfront:ListFieldLevelEncryptionProfiles",
-  "cloudfront:ListInvalidations",
-  "cloudfront:ListPublicKeys",
-  "cloudfront:ListStreamingDistributions",
-  "cloudfront:UpdateDistribution",
-  "iam:AttachRolePolicy",
-  "iam:CreateRole",
-  "iam:CreateServiceLinkedRole",
-  "iam:GetRole",
-  "iam:PassRole",
-  "lambda:CreateFunction",
-  "lambda:EnableReplication",
-  "lambda:DeleteFunction",            // only for custom domains
-  "lambda:GetFunction",
-  "lambda:GetFunctionConfiguration",
-  "lambda:PublishVersion",
-  "lambda:UpdateFunctionCode",
-  "lambda:UpdateFunctionConfiguration",
-  "route53:ChangeResourceRecordSets", // only for custom domains
-  "route53:ListHostedZonesByName",
-  "route53:ListResourceRecordSets",   // only for custom domains
-  "s3:CreateBucket",
-  "s3:GetAccelerateConfiguration",
-  "s3:GetObject",                     // only if persisting state to S3 for CI/CD
-  "s3:HeadBucket",
-  "s3:ListBucket",
-  "s3:PutAccelerateConfiguration",
-  "s3:PutBucketPolicy",
-  "s3:PutObject"
-```
+All engines support the basic options:
 
-## Options
+| Name         | Type                  | Default     | Description                                                                |
+| :----------- | :-------------------- | :---------- | :------------------------------------------------------------------------- |
+| engine       | `"aws"`               | `"aws"`     | The deployment host.                                                       |
+| debug        | `boolean`             | `false`     | Print helpful messages to                                                  |
+| onPreDeploy  | `() => Promise<void>` | `undefined` | A callback to that gets called before the deployment.                      |
+| onPostDeploy | `() => Promise<void>` | `undefined` | A callback to that gets called after the deployment successfully finishes. |
 
 TODO
-
-The next-deploy.config.js config is a combination of BaseDeploymentOptions and AwsComponentInputs types.

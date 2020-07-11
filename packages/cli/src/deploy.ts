@@ -4,7 +4,12 @@ import { BaseDeploymentOptions } from '../types';
 import { DEFAULT_ENGINE, SUPPORTED_ENGINES } from './config';
 import Context from './context';
 
-const METHOD_NAME_MAP = ['default', 'build', 'deploy', 'remove'];
+const METHOD_NAME_MAP = [
+  { name: 'default', action: 'Deploying' },
+  { name: 'build', action: 'Building' },
+  { name: 'deploy', action: 'Deploying' },
+  { name: 'remove', action: 'Removing' },
+];
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
   const {
@@ -15,12 +20,6 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     ...componentOptions
   }: BaseDeploymentOptions = await import(deployConfigPath);
   const engineIndex = SUPPORTED_ENGINES.findIndex(({ type }) => type === engine);
-  const context = new Context({
-    root: process.cwd(),
-    stateRoot: path.join(process.cwd(), '.next-deploy'),
-    debug,
-    entity: engine.toUpperCase(),
-  });
 
   if (engineIndex === -1) {
     throw new Error(
@@ -30,14 +29,27 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     );
   }
 
+  const EngineComponent = await import(SUPPORTED_ENGINES[engineIndex].component);
+  const method = METHOD_NAME_MAP.find(({ name }) => name === methodName);
+
+  if (!method) {
+    throw Error(
+      `Unsupported method ${methodName}. Try one of: ${METHOD_NAME_MAP.map(({ name }) => name).join(
+        ', '
+      )}.`
+    );
+  }
+
+  const context = new Context({
+    root: process.cwd(),
+    stateRoot: path.join(process.cwd(), '.next-deploy'),
+    debug,
+    entity: engine.toUpperCase(),
+    message: method.action,
+  });
+  const component = new EngineComponent.default(undefined, context);
+
   try {
-    const EngineComponent = await import(SUPPORTED_ENGINES[engineIndex].component);
-    const component = new EngineComponent.default(undefined, context);
-
-    if (!METHOD_NAME_MAP.includes(methodName)) {
-      throw Error(`Unsupported method ${methodName}. Try one of: ${METHOD_NAME_MAP.join(', ')}.`);
-    }
-
     onPreDeploy && (await onPreDeploy());
 
     await component.init();
@@ -48,8 +60,6 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     const outputs = await component[methodName](componentOptions);
 
     context.renderOutputs(outputs);
-
-    console.log();
 
     onPostDeploy && (await onPostDeploy());
 

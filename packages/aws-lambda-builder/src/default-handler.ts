@@ -10,11 +10,9 @@ import {
   CloudFrontOrigin,
   CloudFrontResultResponse,
 } from 'aws-lambda';
-import {
-  OriginRequestEvent,
-  OriginRequestDefaultHandlerManifest,
-  PreRenderedManifest as PrerenderManifestType,
-} from '../types';
+import { PrerenderManifest as PrerenderManifestType } from 'next/dist/build/index';
+
+import { OriginRequestEvent, OriginRequestDefaultHandlerManifest } from '../types';
 
 const addS3HostHeader = (req: CloudFrontRequest, s3DomainName: string): void => {
   req.headers['host'] = [{ key: 'host', value: s3DomainName }];

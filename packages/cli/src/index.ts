@@ -16,11 +16,10 @@ const method = args._[0] || undefined;
 if (!configPathExists) {
   fs.writeFileSync(
     deployConfigPath,
-    `// for more configurable options see: https://github.com/nidratech/next-deploy#options
+    `// for more configurable options see: https://github.com/nidratech/next-deploy#configuration-options
 module.exports = {
-  debug: false,
-  onPreDeploy: () => console.log('⚡ Starting Deployment ⚡'),
-  onPostDeploy: () => console.log('✅ Deployment Complete ✅'),
+  debug: true,
+  onPreDeploy: () => console.log('⚡ Starting Deployment'),
 };
 `
   );
