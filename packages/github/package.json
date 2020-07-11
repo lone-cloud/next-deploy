@@ -1,16 +1,15 @@
 {
-  "name": "@next-deploy/aws-domain",
+  "name": "@next-deploy/github",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "serverless.js",
-  "types": "dist/component.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "yarn clean && yarn compile",
     "clean": "rm -rf ./dist",
     "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "@next-deploy/aws-cloudfront": "link:../aws-cloudfront",
     "typescript": "^3.9.6"
   }
 }

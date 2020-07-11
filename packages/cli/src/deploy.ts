@@ -1,15 +1,8 @@
 import path from 'path';
 
 import { BaseDeploymentOptions } from '../types';
-import { DEFAULT_ENGINE, SUPPORTED_ENGINES } from './config';
+import { DEFAULT_ENGINE, SUPPORTED_ENGINES, METHOD_NAME_MAP, STATE_ROOT } from './config';
 import Context from './context';
-
-const METHOD_NAME_MAP = [
-  { name: 'default', action: 'Deploying' },
-  { name: 'build', action: 'Building' },
-  { name: 'deploy', action: 'Deploying' },
-  { name: 'remove', action: 'Removing' },
-];
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
   const {
@@ -17,9 +10,12 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     engine = DEFAULT_ENGINE,
     onPreDeploy,
     onPostDeploy,
+    onShutdown,
     ...componentOptions
   }: BaseDeploymentOptions = await import(deployConfigPath);
   const engineIndex = SUPPORTED_ENGINES.findIndex(({ type }) => type === engine);
+
+  onShutdown && handleShutDown(onShutdown);
 
   if (engineIndex === -1) {
     throw new Error(
@@ -42,7 +38,7 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
 
   const context = new Context({
     root: process.cwd(),
-    stateRoot: path.join(process.cwd(), '.next-deploy'),
+    stateRoot: path.join(process.cwd(), STATE_ROOT),
     debug,
     entity: engine.toUpperCase(),
     message: method.action,
@@ -71,5 +67,16 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     process.exit(1);
   }
 };
+
+function handleShutDown(onShutdown: () => Promise<void>) {
+  const doShutdown = async () => {
+    await onShutdown();
+    process.exit(1);
+  };
+
+  process.on('SIGINT', doShutdown);
+  process.on('SIGQUIT', doShutdown);
+  process.on('SIGTERM', doShutdown);
+}
 
 export default deploy;

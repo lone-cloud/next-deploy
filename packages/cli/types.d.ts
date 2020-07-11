@@ -1,8 +1,9 @@
 export type BaseDeploymentOptions = {
-  engine?: 'aws';
+  engine?: 'aws' | 'github';
   debug?: boolean;
   onPreDeploy?: () => Promise<void>;
   onPostDeploy?: () => Promise<void>;
+  onShutdown?: () => Promise<void>;
 };
 
 type ContextConfig = {

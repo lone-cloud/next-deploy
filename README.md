@@ -12,17 +12,21 @@ Effortless deployment for Next.js apps. 🚀
 
 ## Getting started
 
-`yarn add --dev next-deploy`
-
 [Make sure your environment is configured to deploy.](#Configuration)
 
+The one-liner: `npx next-deploy`
+
+You can also install locally:
+`yarn add --dev next-deploy`
 `yarn next-deploy`
 
 ## Background
 
-next-deploy started as a fork of [serverless-next.js](#https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various [serverless-components](#https://github.com/serverless-components/).
+Next Deploy started as a fork of [serverless-next.js](#https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various [serverless-components](#https://github.com/serverless-components/).
 
 ## Configuration
+
+### AWS
 
 To deploy to AWS you will need to set your credentials in your environment:
 
@@ -31,11 +35,15 @@ AWS_ACCESS_KEY_ID=******
 AWS_SECRET_ACCESS_KEY=******
 ```
 
-If your account is restricted, [ensure that you enough permissions to deploy](docs/aws-permissions.md).
+If your account is restricted, [ensure that you have enough permissions to deploy](docs/aws-permissions.md).
+
+### GitHub
+
+TODO
 
 ## Advanced Configuration
 
-The deployment configuration is to be provided through `next-deploy.config.js`, which will be automatically created for you the first time you run `yarn next-deploy`.
+The deployment configuration is to be provided through `next-deploy.config.js`, which will be automatically created for you the first time you run `next-deploy`.
 
 ```javascript
 module.exports = {
@@ -44,23 +52,24 @@ module.exports = {
 };
 ```
 
-A more advanced configuration that sets more [configurable options](#Options):
+A more advanced configuration that sets more [configurable options](#ConfigurationOptions):
 
 ```javascript
 module.exports = {
-  bucketName: process.env.BUCKET_NAME,
-  description: process.env.LAMBDA_DESCRIPTION,
-  name: {
-    defaultLambda: process.env.DEFAULT_LAMBDA_NAME,
-    apiLambda: process.env.API_LAMBDA_NAME,
-  },
-  domain: [process.env.SUBDOMAIN, process.env.DOMAIN],
+  engine: 'aws',
   onPreDeploy: () => console.log('⚡ Starting Deployment ⚡'),
-  onPostDeploy: () => console.log('✅ Deployment Complete ✅'),
+  onShutdown: () => console.log('⛔ Interrupted ⛔'),
+  onPostDeploy: () => console.log('🌟 Deployment Complete 🌟'),
   debug: true,
-  build: true,
+
+  bucketName: 'bucket-name',
+  description: 'lambda-description',
+  name: 'lambda-name',
+  domain: ['foobar', 'example.com'],
 };
 ```
+
+Environment variables may be substituted from `process.env` to allow for more flexibility that one would need for CI/CD.
 
 ## Configuration Options
 
@@ -68,11 +77,12 @@ The next-deploy config varies by the provider (engine) that you're deploying to.
 
 All engines support the basic options:
 
-| Name         | Type                  | Default     | Description                                                                |
-| :----------- | :-------------------- | :---------- | :------------------------------------------------------------------------- |
-| engine       | `"aws"`               | `"aws"`     | The deployment host.                                                       |
-| debug        | `boolean`             | `false`     | Print helpful messages to                                                  |
-| onPreDeploy  | `() => Promise<void>` | `undefined` | A callback to that gets called before the deployment.                      |
-| onPostDeploy | `() => Promise<void>` | `undefined` | A callback to that gets called after the deployment successfully finishes. |
+| Name         | Type                  | Default     | Description                                                                                              |
+| :----------- | :-------------------- | :---------- | :------------------------------------------------------------------------------------------------------- |
+| engine       | `"aws" \| "github"`   | `"aws"`     | The platform to deploy to.                                                                               |
+| debug        | `boolean`             | `false`     | Print helpful messages to                                                                                |
+| onPreDeploy  | `() => Promise<void>` | `undefined` | A callback that gets called before the deployment.                                                       |
+| onPostDeploy | `() => Promise<void>` | `undefined` | A callback that gets called after the deployment successfully finishes.                                  |
+| onShutdown   | `() => Promise<void>` | `undefined` | A callback that gets called after the deployment is shutdown by a INT/QUIT/TERM signal like from ctrl+c. |
 
 TODO

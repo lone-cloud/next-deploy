@@ -1,4 +1,3 @@
-import { DomainType } from '@next-deploy/aws-component/types';
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 
 type AwsDomainInputs = {
@@ -19,3 +18,4 @@ type SubDomain = {
 };
 
 type SubDomainType = 'awsCloudFront' | 'awsS3Website' | 'awsApiGateway' | 'awsAppSync';
+type DomainType = 'www' | 'apex' | 'both';

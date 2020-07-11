@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Effortless deployment for Next.js apps. 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "lerna exec -- yarn build -w",
     "build": "lerna run build",
-    "setup": "lerna exec -- yarn",
+    "clean": "lerna run clean",
+    "setup": "yarn && lerna exec -- yarn",
     "prepack": "yarn build"
   },
   "bin": {
@@ -32,19 +33,23 @@
   },
   "homepage": "https://github.com/nidratech/next-deploy#readme",
   "dependencies": {
-    "@next-deploy/aws-cloudfront": "link:./packages/aws-cloudfront",
-    "@next-deploy/aws-component": "link:./packages/aws-component",
-    "@next-deploy/aws-domain": "link:./packages/aws-domain",
-    "@next-deploy/aws-lambda": "link:./packages/aws-lambda",
-    "@next-deploy/aws-lambda-builder": "link:./packages/aws-lambda-builder",
-    "@next-deploy/aws-s3": "link:./packages/aws-s3",
+    "@next-deploy/aws-cloudfront": "link:node_modules/next-deploy/packages/aws-cloudfront",
+    "@next-deploy/aws-component": "link:node_modules/next-deploy/packages/aws-component",
+    "@next-deploy/aws-domain": "link:node_modules/next-deploy/packages/aws-domain",
+    "@next-deploy/aws-lambda": "link:node_modules/next-deploy/packages/aws-lambda",
+    "@next-deploy/aws-lambda-builder": "link:node_modules/next-deploy/packages/aws-lambda-builder",
+    "@next-deploy/aws-s3": "link:node_modules/next-deploy/packages/aws-s3",
+    "@next-deploy/github": "link:node_modules/next-deploy/packages/github",
     "@serverless/aws-iam-role": "^1.0.0",
     "@serverless/aws-lambda-layer": "^1.0.0",
     "@serverless/core": "^1.1.2",
     "@zeit/node-file-trace": "^0.7.0",
-    "archiver": "^4.0.1",
+    "ansi-escapes": "^4.3.1",
+    "archiver": "^4.0.2",
     "aws-sdk": "^2.713.0",
+    "chalk": "^4.1.0",
     "execa": "^4.0.3",
+    "figures": "^3.2.0",
     "fs-extra": "^9.0.1",
     "globby": "^11.0.1",
     "klaw": "^3.0.0",
@@ -56,7 +61,8 @@
     "prettyoutput": "^1.2.0",
     "ramda": "^0.27.0",
     "regex-parser": "^2.2.10",
-    "s3-stream-upload": "^2.0.2"
+    "s3-stream-upload": "^2.0.2",
+    "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",

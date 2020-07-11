@@ -2,8 +2,7 @@ import { Route53, ACM, CloudFront, Credentials } from 'aws-sdk';
 import { utils } from '@serverless/core';
 
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
-import { DomainType } from '@next-deploy/aws-component/types';
-import { AwsDomainInputs, SubDomain } from '../types';
+import { AwsDomainInputs, SubDomain, DomainType } from '../types';
 
 const DEFAULT_MINIMUM_PROTOCOL_VERSION = 'TLSv1.2_2018';
 const HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2'; // this is a constant that you can get from here https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html

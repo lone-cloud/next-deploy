@@ -1,5 +1,6 @@
 import { PublicDirectoryCache } from '@next-deploy/aws-s3/types';
 import { CloudFrontInputs } from '@next-deploy/aws-cloudfront/types';
+import { DomainType } from '@next-deploy/aws-domain/types';
 
 type AwsComponentInputs = {
   build?: BuildOptions | boolean;
@@ -18,8 +19,6 @@ type AwsComponentInputs = {
   domainType?: DomainType;
   cloudfront?: CloudFrontInputs;
 };
-
-type DomainType = 'www' | 'apex' | 'both';
 
 type BuildOptions = {
   cwd?: string;

@@ -50,7 +50,7 @@ class Context {
     process.stdout.write(ansiEscapes.cursorHide);
 
     // Event Handler: Control + C
-    process.on('SIGINT', async () => {
+    process.on('SIGINT', () => {
       if (this.isStatusEngineActive()) {
         return this.statusEngineStop('cancel');
       }

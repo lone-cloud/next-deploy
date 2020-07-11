@@ -97,8 +97,9 @@ export const handler = async (
   if (isHTMLPage || isPublicFile) {
     s3Origin.path = isHTMLPage ? '/static-pages' : '/public';
 
+    addS3HostHeader(request, normalizedS3DomainName);
+
     if (isHTMLPage) {
-      addS3HostHeader(request, normalizedS3DomainName);
       request.uri = `${uri}.html`;
     }
 
