@@ -49,3 +49,21 @@ type UploadStreamOptions = {
   ContentType?: string;
   CacheControl?: string;
 };
+
+type BaseDeploymentOptions = {
+  engine?: 'aws' | 'github';
+  debug?: boolean;
+  onPreDeploy?: () => Promise<void>;
+  onPostDeploy?: () => Promise<void>;
+  onShutdown?: () => Promise<void>;
+  build?: BuildOptions | boolean;
+  nextConfigDir?: string;
+  domain?: string | string[];
+};
+
+type BuildOptions = {
+  cwd?: string;
+  enabled?: boolean;
+  cmd: string;
+  args: string[];
+};

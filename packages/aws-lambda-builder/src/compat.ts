@@ -135,7 +135,7 @@ const handler = ({
   } as CloudFrontResultResponse;
 
   const newStream = new Stream.Readable();
-  const req = Object.assign(newStream, IncomingMessage.prototype) as IncomingMessage;
+  const req = { ...newStream, ...IncomingMessage.prototype } as IncomingMessage;
   req.url = request.uri;
   req.method = request.method;
   req.rawHeaders = [];
@@ -179,7 +179,7 @@ const handler = ({
     response.status = status.toString();
 
     if (headers) {
-      res.headers = Object.assign(res.headers, headers);
+      res.headers = { ...res.headers, ...headers };
     }
 
     return res;

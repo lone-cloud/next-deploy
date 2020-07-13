@@ -12,13 +12,7 @@ import {
 } from '@next-deploy/aws-lambda-builder/types';
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { Origin } from '@next-deploy/aws-cloudfront/types';
-import {
-  DeploymentResult,
-  BuildOptions,
-  AwsComponentInputs,
-  LambdaType,
-  LambdaInput,
-} from '../types';
+import { DeploymentResult, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
 
 export const BUILD_DIR = '.next-deploy-build';
 export const DEFAULT_LAMBDA_CODE_DIR = `${BUILD_DIR}/default-lambda`;

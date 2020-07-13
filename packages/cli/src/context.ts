@@ -192,7 +192,7 @@ class Context {
     let content = '';
 
     if (this.metrics.useTimer) {
-      content += `${grey(this.metrics.seconds + 's')}`;
+      content += `${grey(`${this.metrics.seconds}s`)}`;
       content += ` ${blue(figures.pointerSmall)}`;
     }
     content += ` ${message}`;

@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@next-deploy/aws-s3@link:../aws-s3":
+  version "0.0.0"
+  uid ""
+
 typescript@^3.9.6:
   version "3.9.6"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.6.tgz#8f3e0198a34c3ae17091b35571d3afd31999365a"

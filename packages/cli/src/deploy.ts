@@ -1,8 +1,9 @@
 import path from 'path';
+import chalk from 'chalk';
 
-import { BaseDeploymentOptions } from '../types';
 import { DEFAULT_ENGINE, SUPPORTED_ENGINES, METHOD_NAME_MAP, STATE_ROOT } from './config';
 import Context from './context';
+import { createBaseConfig } from './utils';
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
   const {
@@ -14,26 +15,37 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     ...componentOptions
   }: BaseDeploymentOptions = await import(deployConfigPath);
   const engineIndex = SUPPORTED_ENGINES.findIndex(({ type }) => type === engine);
+  const isInit = methodName === 'init';
 
   onShutdown && handleShutDown(onShutdown);
 
   if (engineIndex === -1) {
-    throw new Error(
-      `Engine ${engine} is unsupported. Pick one of: ${SUPPORTED_ENGINES.map(
+    console.error(
+      `❌ ${chalk.red(`Unsupported engine:`)}: ${engine}\nPick one of: ${SUPPORTED_ENGINES.map(
         ({ type }) => type
-      ).join(', ')}.`
+      ).join(', ')}`
     );
+
+    process.exit(1);
   }
 
   const EngineComponent = await import(SUPPORTED_ENGINES[engineIndex].component);
   const method = METHOD_NAME_MAP.find(({ name }) => name === methodName);
 
   if (!method) {
-    throw Error(
-      `Unsupported method ${methodName}. Try one of: ${METHOD_NAME_MAP.map(({ name }) => name).join(
-        ', '
-      )}.`
+    console.error(
+      `❌ ${chalk.red(`Unsupported method:`)} ${methodName}\nPick one of: ${METHOD_NAME_MAP.map(
+        ({ name }) => name
+      ).join(', ')}`
     );
+
+    process.exit(1);
+  }
+
+  createBaseConfig(deployConfigPath, isInit);
+
+  if (isInit) {
+    process.exit(0);
   }
 
   const context = new Context({
@@ -46,6 +58,8 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
   const component = new EngineComponent.default(undefined, context);
 
   try {
+    context.log(`⚡ Starting ${method.actionNoun} ⚡`);
+
     onPreDeploy && (await onPreDeploy());
 
     await component.init();

@@ -46,12 +46,6 @@ type OriginRequestEvent = {
   Records: [{ cf: { request: CloudFrontRequest } }];
 };
 
-type BuildOptions = {
-  args?: string[];
-  cwd?: string;
-  cmd?: string;
-};
-
 type CreateServerlessConfigResult = {
   restoreUserConfig: () => Promise<void>;
 };

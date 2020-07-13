@@ -2,27 +2,11 @@
 # yarn lockfile v1
 
 
-"@next-deploy/aws-cloudfront@link:../aws-cloudfront":
-  version "0.0.0"
-  uid ""
-
 "@next-deploy/aws-component@link:../aws-component":
   version "0.0.0"
   uid ""
 
-"@next-deploy/aws-domain@link:../aws-domain":
-  version "0.0.0"
-  uid ""
-
-"@next-deploy/aws-lambda-builder@link:../aws-lambda-builder":
-  version "0.0.0"
-  uid ""
-
-"@next-deploy/aws-lambda@link:../aws-lambda":
-  version "0.0.0"
-  uid ""
-
-"@next-deploy/aws-s3@link:../aws-s3":
+"@next-deploy/github@link:../github":
   version "0.0.0"
   uid ""
 
