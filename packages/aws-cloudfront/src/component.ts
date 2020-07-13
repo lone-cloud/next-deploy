@@ -89,7 +89,7 @@ class CloudFrontComponent extends Component {
     this.state = {};
     await this.save();
 
-    this.context.debug(`CloudFront distribution was successfully removed.`);
+    this.context.debug('CloudFront distribution was successfully removed.');
   }
 }
 

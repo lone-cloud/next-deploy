@@ -1,11 +1,12 @@
 {
   "name": "@next-deploy/aws-cloudfront",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "license": "MIT",
   "main": "serverless.js",
   "types": "dist/component.d.ts",
   "scripts": {
     "build": "yarn clean && yarn compile",
+    "build:watch": "yarn compile -w",
     "clean": "rm -rf ./dist",
     "compile": "tsc -p tsconfig.build.json"
   },

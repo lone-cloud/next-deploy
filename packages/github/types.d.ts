@@ -1,3 +1,9 @@
-export type GithubInputs = {};
+import { PublishOptions } from 'gh-pages';
 
-type DeploymentResult = {};
+export type GithubInputs = BaseDeploymentOptions & {
+  publishOptions?: PublishOptions;
+};
+
+type DeploymentResult = {
+  appUrl?: string;
+};

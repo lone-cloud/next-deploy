@@ -10,3 +10,4 @@ CODE_OF_CONDUCT.md
 .yarnignore
 src
 tsconfig.build.json
+examples
