@@ -12,10 +12,7 @@ const forwardDefaults = {
  * @param defaults Default framework values (default cache behavior and custom cache behavior have different default values)
  * @returns Object
  */
-export default function getForwardedValues(
-  config: Forward = {},
-  defaults?: Partial<PathPatternConfig>
-) {
+export default function getForwardedValues(config: Forward = {}, defaults?: PathPatternConfig) {
   const defaultValues = { ...forwardDefaults, ...defaults };
   const {
     cookies,

@@ -12,16 +12,7 @@ type DynamicPageKeyValue = {
   };
 };
 
-type OriginRequestApiHandlerManifest = {
-  apis: {
-    dynamic: DynamicPageKeyValue;
-    nonDynamic: {
-      [key: string]: string;
-    };
-  };
-};
-
-type OriginRequestDefaultHandlerManifest = {
+type OriginRequestHandlerManifest = {
   buildId: string;
   pages: {
     ssr: {
@@ -31,10 +22,16 @@ type OriginRequestDefaultHandlerManifest = {
       };
     };
     html: {
+      dynamic: DynamicPageKeyValue;
       nonDynamic: {
         [path: string]: string;
       };
+    };
+    apis: {
       dynamic: DynamicPageKeyValue;
+      nonDynamic: {
+        [key: string]: string;
+      };
     };
   };
   publicFiles: {

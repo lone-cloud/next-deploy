@@ -7,17 +7,17 @@ type AwsComponentInputs = BaseDeploymentOptions & {
   bucketName?: string;
   bucketRegion?: string;
   publicDirectoryCache?: PublicDirectoryCache;
-  memory?: number | { defaultLambda?: number; apiLambda?: number };
-  timeout?: number | { defaultLambda?: number; apiLambda?: number };
-  name?: string | { defaultLambda?: string; apiLambda?: string };
-  runtime?: string | { defaultLambda?: string; apiLambda?: string };
-  description?: string;
+  memory?: number | { [key in LambdaType]: number };
+  timeout?: number | { [key in LambdaType]: number };
+  name?: string | { [key in LambdaType]: string };
+  runtime?: string | { [key in LambdaType]: string };
+  description?: string | { [key in LambdaType]: string };
   policy?: string;
   domainType?: DomainType;
-  cloudfront?: CloudFrontInputs;
+  cloudfrontOptions?: CloudFrontInputs;
 };
 
-type LambdaType = 'defaultLambda' | 'apiLambda';
+type LambdaType = 'requestLambda' | 'responseLambda';
 
 type LambdaInput = {
   description: string;

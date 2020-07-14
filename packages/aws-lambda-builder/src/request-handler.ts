@@ -12,14 +12,14 @@ import {
 } from 'aws-lambda';
 import { PrerenderManifest as PrerenderManifestType } from 'next/dist/build/index';
 
-import { OriginRequestEvent, OriginRequestDefaultHandlerManifest } from '../types';
+import { OriginRequestEvent, OriginRequestHandlerManifest } from '../types';
 
 const addS3HostHeader = (req: CloudFrontRequest, s3DomainName: string): void => {
   req.headers['host'] = [{ key: 'host', value: s3DomainName }];
 };
 
 const isDataRequest = (uri: string): boolean => uri.startsWith('/_next/data');
-
+const isApiRequest = (uri: string): boolean => uri.startsWith('/api');
 const normaliseUri = (uri: string): string => (uri === '/' ? '/index' : uri);
 
 const normaliseS3OriginDomain = (s3Origin: CloudFrontS3Origin): string => {
@@ -38,14 +38,13 @@ const normaliseS3OriginDomain = (s3Origin: CloudFrontS3Origin): string => {
   return s3Origin.domainName;
 };
 
-const router = (manifest: OriginRequestDefaultHandlerManifest): ((uri: string) => string) => {
+const router = (manifest: OriginRequestHandlerManifest): ((uri: string) => string | null) => {
   const {
-    pages: { ssr, html },
+    pages: { ssr, html, apis },
   } = manifest;
+  const allDynamicRoutes = { ...ssr.dynamic, ...html.dynamic, ...apis.dynamic };
 
-  const allDynamicRoutes = { ...ssr.dynamic, ...html.dynamic };
-
-  return (uri: string): string => {
+  return (uri: string): string | null => {
     let normalizedUri = uri;
 
     if (isDataRequest(uri)) {
@@ -67,6 +66,10 @@ const router = (manifest: OriginRequestDefaultHandlerManifest): ((uri: string) =
       }
     }
 
+    if (isApiRequest(uri)) {
+      return null;
+    }
+
     // only use the 404 page if the project exports it
     if (html.nonDynamic['/404'] !== undefined) {
       return 'pages/404.html';
@@ -81,7 +84,7 @@ export const handler = async (
 ): Promise<CloudFrontResultResponse | CloudFrontRequest> => {
   const { request } = event.Records[0].cf;
   const uri = normaliseUri(request.uri);
-  const manifest: OriginRequestDefaultHandlerManifest = Manifest;
+  const manifest: OriginRequestHandlerManifest = Manifest;
   const prerenderManifest: PrerenderManifestType = PrerenderManifest;
   const { pages, publicFiles } = manifest;
   const isStaticPage = pages.html.nonDynamic[uri];
@@ -108,20 +111,28 @@ export const handler = async (
 
   const pagePath = router(manifest)(uri);
 
+  if (!pagePath) {
+    return {
+      status: '404',
+    };
+  }
+
   if (pagePath.endsWith('.html')) {
     s3Origin.path = '/static-pages';
     request.uri = pagePath.replace('pages', '');
     addS3HostHeader(request, normalizedS3DomainName);
+
     return request;
   }
 
-  // eslint-disable-next-line
   const page = require(`./${pagePath}`);
-
   const { req, res, responsePromise } = lambdaAtEdgeCompat(event.Records[0].cf);
 
-  if (isDataRequest(uri)) {
+  if (isApiRequest(uri)) {
+    page.default(req, res);
+  } else if (isDataRequest(uri)) {
     const { renderOpts } = await page.renderReqToHTML(req, res, 'passthrough');
+
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(renderOpts.pageData));
   } else {

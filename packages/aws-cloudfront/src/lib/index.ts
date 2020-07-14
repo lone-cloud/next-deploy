@@ -10,16 +10,20 @@ export { default as createInvalidation } from './createInvalidation';
 
 const servePrivateContentEnabled = (inputs: CloudFrontInputs) =>
   inputs?.origins?.some((origin: string | Origin) => origin && (origin as Origin).private === true);
-
+const unique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
 const updateBucketsPolicies = async (
   s3: S3,
   origins: CloudFront.Origins,
   s3CanonicalUserId: string
 ) => {
   // update bucket policies with cloudfront access
-  const bucketNames = origins.Items.filter((origin) => origin.S3OriginConfig).map(
-    (origin) => origin.Id
-  );
+  const bucketNames = origins.Items.filter((origin) => origin.S3OriginConfig)
+    .map(
+      (origin) =>
+        // remove path from the bucket name if origin had pathname
+        origin.Id.split('/')[0]
+    )
+    .filter(unique);
 
   return Promise.all(
     bucketNames.map((bucketName: string) =>
@@ -142,7 +146,11 @@ export const updateCloudFrontDistribution = async (
   };
 };
 
-const disableCloudFrontDistribution = async (cf: CloudFront, distributionId: string) => {
+const disableCloudFrontDistribution = async (
+  cf: CloudFront,
+  distributionId: string,
+  debug: (message: string) => void
+) => {
   const distributionConfigResponse = await cf
     .getDistributionConfig({ Id: distributionId })
     .promise();
@@ -162,27 +170,24 @@ const disableCloudFrontDistribution = async (cf: CloudFront, distributionId: str
 
   const res = await cf.updateDistribution(updateDistributionRequest).promise();
 
-  return {
-    id: res?.Distribution?.Id,
-    arn: res?.Distribution?.ARN,
-    url: `https://${res?.Distribution?.DomainName}`,
-  };
+  debug(`Waiting for the CloudFront distribution changes to be deployed.`);
+  await cf.waitFor('distributionDeployed', { Id: distributionId }).promise();
+
+  return res;
 };
 
 export const deleteCloudFrontDistribution = async (
   cf: CloudFront,
-  distributionId: string
+  distributionId: string,
+  debug: (message: string) => void
 ): Promise<void> => {
-  try {
-    const res = await cf.getDistributionConfig({ Id: distributionId }).promise();
+  let res = await cf.getDistributionConfig({ Id: distributionId }).promise();
 
-    const params = { Id: distributionId, IfMatch: res.ETag };
-    await cf.deleteDistribution(params).promise();
-  } catch (e) {
-    if (e.code === 'DistributionNotDisabled') {
-      await disableCloudFrontDistribution(cf, distributionId);
-    } else {
-      throw e;
-    }
+  if (res?.DistributionConfig?.Enabled) {
+    debug(`Disabling CloudFront distribution of ID ${distributionId} before removal.`);
+    res = await disableCloudFrontDistribution(cf, distributionId, debug);
   }
+
+  const params = { Id: distributionId, IfMatch: res.ETag };
+  await cf.deleteDistribution(params).promise();
 };

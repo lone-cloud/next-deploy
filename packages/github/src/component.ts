@@ -9,7 +9,7 @@ import { GithubInputs, DeploymentResult } from '../types';
 
 class GithubComponent extends Component {
   async default(inputs: GithubInputs = {}): Promise<DeploymentResult> {
-    if (inputs.build !== false) {
+    if (inputs.buildOptions !== false) {
       await this.build(inputs);
     }
 
@@ -19,17 +19,19 @@ class GithubComponent extends Component {
   async build(inputs: GithubInputs = {}): Promise<void> {
     const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
     const buildCwd =
-      typeof inputs.build === 'boolean' || typeof inputs.build === 'undefined' || !inputs.build.cwd
+      typeof inputs.buildOptions === 'boolean' ||
+      typeof inputs.buildOptions === 'undefined' ||
+      !inputs.buildOptions.cwd
         ? nextConfigPath
-        : resolve(inputs.build.cwd);
+        : resolve(inputs.buildOptions.cwd);
     const buildConfig: BuildOptions = {
-      enabled: inputs.build
+      enabled: inputs.buildOptions
         ? // @ts-ignore
-          inputs.build !== false && inputs.build.enabled !== false
+          inputs.buildOptions !== false && inputs.buildOptions.enabled !== false
         : true,
       cmd: 'node_modules/.bin/next',
       args: ['build'],
-      ...(typeof inputs.build === 'object' ? inputs.build : {}),
+      ...(typeof inputs.buildOptions === 'object' ? inputs.buildOptions : {}),
       cwd: buildCwd,
     };
 
@@ -57,7 +59,7 @@ class GithubComponent extends Component {
     const publishPromise = new Promise((resolve, reject) => {
       publish(
         'out',
-        { message: 'Next Deployment Update', ...inputs.publishOptions, dotfiles: true },
+        { message: 'Next Deployment Update', dotfiles: true, ...inputs.publishOptions },
         (err) => {
           if (err) {
             return reject(err);

@@ -365,7 +365,7 @@ export const addDomainToCloudfrontDistribution = async (
   subdomain: SubDomain,
   certificateArn: string,
   domainType: DomainType,
-  defaultCloudfrontInputs: Partial<PathPatternConfig>
+  { viewerCertificate }: PathPatternConfig
 ): Promise<{
   id?: string;
   arn?: string;
@@ -389,12 +389,12 @@ export const addDomainToCloudfrontDistribution = async (
         Items: [subdomain.domain],
       },
       ViewerCertificate: {
-        ACMCertificateArn: certificateArn,
-        SSLSupportMethod: 'sni-only',
-        MinimumProtocolVersion: DEFAULT_MINIMUM_PROTOCOL_VERSION,
-        Certificate: certificateArn,
-        CertificateSource: 'acm',
-        ...defaultCloudfrontInputs.viewerCertificate,
+        ACMCertificateArn: viewerCertificate?.ACMCertificateArn || certificateArn,
+        SSLSupportMethod: viewerCertificate?.SSLSupportMethod || 'sni-only',
+        MinimumProtocolVersion:
+          viewerCertificate?.minimumProtocolVersion || DEFAULT_MINIMUM_PROTOCOL_VERSION,
+        Certificate: viewerCertificate?.certificate || certificateArn,
+        CertificateSource: viewerCertificate?.certificateSource || 'acm',
       },
     },
   };

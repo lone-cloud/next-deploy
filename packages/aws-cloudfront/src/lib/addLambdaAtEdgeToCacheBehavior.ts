@@ -1,3 +1,5 @@
+import { LambdaAtEdgeConfig, LambdaAtEdgeType } from '../../types';
+
 const validLambdaTriggers = [
   'viewer-request',
   'origin-request',
@@ -5,10 +7,31 @@ const validLambdaTriggers = [
   'viewer-response',
 ];
 
+const triggersAllowedBody = ['viewer-request', 'origin-request'];
+
+const makeCacheItem = (eventType: string, lambdaConfig: LambdaAtEdgeType) => {
+  let arn, includeBody;
+  if (typeof lambdaConfig === 'string') {
+    arn = lambdaConfig;
+    includeBody = triggersAllowedBody.includes(eventType);
+  } else {
+    ({ arn, includeBody } = lambdaConfig);
+    if (includeBody && !triggersAllowedBody.includes(eventType)) {
+      throw new Error(`"includeBody" not allowed for ${eventType} lambda triggers.`);
+    }
+  }
+
+  return {
+    EventType: eventType,
+    LambdaFunctionARN: arn,
+    IncludeBody: includeBody,
+  };
+};
+
 // adds lambda@edge to cache behavior passed
 const addLambdaAtEdgeToCacheBehavior = (
   cacheBehavior: any,
-  lambdaAtEdgeConfig: Record<string, unknown> = {}
+  lambdaAtEdgeConfig: LambdaAtEdgeConfig = {}
 ) => {
   Object.keys(lambdaAtEdgeConfig).forEach((eventType) => {
     if (!validLambdaTriggers.includes(eventType)) {
@@ -17,13 +40,12 @@ const addLambdaAtEdgeToCacheBehavior = (
       );
     }
 
+    cacheBehavior.LambdaFunctionAssociations.Items.push(
+      makeCacheItem(eventType, lambdaAtEdgeConfig[eventType])
+    );
+
     cacheBehavior.LambdaFunctionAssociations.Quantity =
       cacheBehavior.LambdaFunctionAssociations.Quantity + 1;
-    cacheBehavior.LambdaFunctionAssociations.Items.push({
-      EventType: eventType,
-      LambdaFunctionARN: lambdaAtEdgeConfig[eventType],
-      IncludeBody: true,
-    });
   });
 };
 

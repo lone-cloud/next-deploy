@@ -130,7 +130,7 @@ class Context {
     return credentials;
   }
 
-  close(reason: string, message?: string): void {
+  close(reason: string, error?: Error): void {
     // Skip if not active
     process.stdout.write(ansiEscapes.cursorShow);
     if (!this.isStatusEngineActive()) {
@@ -138,7 +138,7 @@ class Context {
       process.exit(0);
     }
 
-    return this.statusEngineStop(reason, message);
+    return this.statusEngineStop(reason, error);
   }
 
   getRelativeVerticalCursorPosition(contentString: string): number {
@@ -172,11 +172,12 @@ class Context {
     return this.statusEngine();
   }
 
-  statusEngineStop(reason: string, message?: string): void {
+  statusEngineStop(reason: string, error?: Error): void {
     this.metrics.status.running = false;
+    let message = '';
 
-    if (reason === 'error' && message) {
-      message = red(message);
+    if (reason === 'error' && error) {
+      message = red(`❌ ${error.stack || error.message}`);
     } else if (reason === 'cancel') {
       message = red('Cancelled ❌');
     } else if (reason === 'done') {
@@ -325,7 +326,7 @@ class Context {
     console.log();
 
     // Write Error
-    console.log(`${red('error:')}`);
+    console.log(`${red('Error:')}`);
 
     console.log(` `, error);
 

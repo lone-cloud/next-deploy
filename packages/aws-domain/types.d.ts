@@ -5,7 +5,7 @@ type AwsDomainInputs = {
   region?: string;
   privateZone?: boolean;
   domainType?: DomainType;
-  defaultCloudfrontInputs?: Partial<PathPatternConfig>;
+  defaultCloudfrontInputs?: PathPatternConfig;
   subdomains: SubDomain[];
 };
 

@@ -56,7 +56,7 @@ type BaseDeploymentOptions = {
   onPreDeploy?: () => Promise<void>;
   onPostDeploy?: () => Promise<void>;
   onShutdown?: () => Promise<void>;
-  build?: BuildOptions | boolean;
+  buildOptions?: BuildOptions | boolean;
   nextConfigDir?: string;
   domain?: string | string[];
 };

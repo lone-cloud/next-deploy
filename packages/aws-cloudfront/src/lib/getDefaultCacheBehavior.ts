@@ -4,7 +4,7 @@ import addLambdaAtEdgeToCacheBehavior from './addLambdaAtEdgeToCacheBehavior';
 import getForwardedValues from './getForwardedValues';
 import { PathPatternConfig } from '../../types';
 
-const getDefaultCacheBehavior = (originId: string, defaults: Partial<PathPatternConfig> = {}) => {
+const getDefaultCacheBehavior = (originId: string, defaults: PathPatternConfig = {}) => {
   const {
     allowedHttpMethods = ['HEAD', 'GET'],
     forward = {},
