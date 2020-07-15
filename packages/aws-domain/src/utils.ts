@@ -393,8 +393,8 @@ export const addDomainToCloudfrontDistribution = async (
         SSLSupportMethod: viewerCertificate?.SSLSupportMethod || 'sni-only',
         MinimumProtocolVersion:
           viewerCertificate?.minimumProtocolVersion || DEFAULT_MINIMUM_PROTOCOL_VERSION,
-        Certificate: viewerCertificate?.certificate || certificateArn,
-        CertificateSource: viewerCertificate?.certificateSource || 'acm',
+        Certificate: certificateArn,
+        CertificateSource: 'acm',
       },
     },
   };

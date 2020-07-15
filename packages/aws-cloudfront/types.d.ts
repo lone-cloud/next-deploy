@@ -15,29 +15,23 @@ type PathPatternConfig = {
   fieldLevelEncryptionId?: string;
   forward?: Forward;
   viewerCertificate?: ViewerCertificate;
-  cookies?: string;
-  queryString?: boolean;
-  'lambda@edge'?: LambdaAtEdgeConfig;
+  'lambda@edge'?: LambdaAtEdge;
 };
 
 type ViewerCertificate = {
   ACMCertificateArn: string;
   SSLSupportMethod: string;
   minimumProtocolVersion: string;
-  certificate: string;
-  certificateSource: string;
+};
+
+type LambdaAtEdge = {
+  [type: string]: string | LambdaAtEdgeConfig;
 };
 
 type LambdaAtEdgeConfig = {
-  [type: string]: LambdaAtEdgeType;
+  arn: string;
+  includeBody: boolean;
 };
-
-type LambdaAtEdgeType =
-  | string
-  | {
-      arn: string;
-      includeBody: boolean;
-    };
 
 type Origin = {
   url: string;
@@ -47,8 +41,8 @@ type Origin = {
 };
 
 type Forward = {
-  cookies?: string[];
-  queryString?: string;
+  cookies?: string | string[];
+  queryString?: boolean;
   headers?: string[];
   queryStringCacheKeys?: string[];
 };

@@ -1,7 +1,7 @@
 import { PublishOptions } from 'gh-pages';
 
 export type GithubInputs = BaseDeploymentOptions & {
-  publishOptions?: PublishOptions;
+  publish?: PublishOptions;
 };
 
 type DeploymentResult = {

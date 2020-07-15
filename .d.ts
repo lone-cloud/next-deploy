@@ -14,6 +14,7 @@ declare module '@serverless/core' {
       };
       instance: {
         debugMode: boolean;
+        metrics: any;
       };
     };
   }
@@ -56,14 +57,13 @@ type BaseDeploymentOptions = {
   onPreDeploy?: () => Promise<void>;
   onPostDeploy?: () => Promise<void>;
   onShutdown?: () => Promise<void>;
-  buildOptions?: BuildOptions | boolean;
+  build?: BuildOptions;
   nextConfigDir?: string;
   domain?: string | string[];
 };
 
 type BuildOptions = {
   cwd?: string;
-  enabled?: boolean;
   cmd: string;
   args: string[];
 };

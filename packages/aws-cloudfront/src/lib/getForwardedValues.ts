@@ -1,6 +1,6 @@
 import { CloudFront } from 'aws-sdk';
 
-import { Forward, PathPatternConfig } from '../../types';
+import { Forward } from '../../types';
 
 const forwardDefaults = {
   cookies: 'none',
@@ -12,7 +12,7 @@ const forwardDefaults = {
  * @param defaults Default framework values (default cache behavior and custom cache behavior have different default values)
  * @returns Object
  */
-export default function getForwardedValues(config: Forward = {}, defaults?: PathPatternConfig) {
+export default function getForwardedValues(config: Forward = {}, defaults?: Forward) {
   const defaultValues = { ...forwardDefaults, ...defaults };
   const {
     cookies,
@@ -23,7 +23,7 @@ export default function getForwardedValues(config: Forward = {}, defaults?: Path
 
   // Cookies
   const forwardCookies: CloudFront.CookiePreference = {
-    Forward: defaultValues.cookies,
+    Forward: defaultValues.cookies as string,
   };
 
   if (typeof cookies === 'string') {

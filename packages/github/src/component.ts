@@ -4,62 +4,52 @@ import { publish } from 'gh-pages';
 import { emptyDir } from 'fs-extra';
 import { writeFileSync } from 'fs';
 
-import build from './builder';
+import builder from './builder';
 import { GithubInputs, DeploymentResult } from '../types';
 
 class GithubComponent extends Component {
   async default(inputs: GithubInputs = {}): Promise<DeploymentResult> {
-    if (inputs.buildOptions !== false) {
-      await this.build(inputs);
-    }
-
+    await this.build(inputs);
     return this.deploy(inputs);
   }
 
-  async build(inputs: GithubInputs = {}): Promise<void> {
-    const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
-    const buildCwd =
-      typeof inputs.buildOptions === 'boolean' ||
-      typeof inputs.buildOptions === 'undefined' ||
-      !inputs.buildOptions.cwd
-        ? nextConfigPath
-        : resolve(inputs.buildOptions.cwd);
-    const buildConfig: BuildOptions = {
-      enabled: inputs.buildOptions
-        ? // @ts-ignore
-          inputs.buildOptions !== false && inputs.buildOptions.enabled !== false
-        : true,
-      cmd: 'node_modules/.bin/next',
-      args: ['build'],
-      ...(typeof inputs.buildOptions === 'object' ? inputs.buildOptions : {}),
-      cwd: buildCwd,
-    };
+  async build({ build, nextConfigDir, domain }: GithubInputs = {}): Promise<void> {
+    this.context.instance.metrics.status.message = 'Building';
 
-    if (buildConfig.enabled) {
-      await build(buildConfig, this.context.instance.debugMode ? this.context.debug : undefined);
+    const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
 
-      if (inputs?.domain?.length) {
-        const domain = getDomains(inputs.domain);
+    await builder(
+      {
+        cmd: build?.cmd || 'node_modules/.bin/next',
+        cwd: build?.cwd ? resolve(build.cwd) : nextConfigPath,
+        args: build?.args || ['build'],
+      },
+      this.context.instance.debugMode ? this.context.debug : undefined
+    );
 
-        if (domain) {
-          writeFileSync('out/CNAME', domain);
-        }
+    if (domain?.length) {
+      const computedDomain = getComputedDomain(domain);
+
+      if (computedDomain) {
+        writeFileSync('out/CNAME', computedDomain);
       }
     }
   }
 
-  async deploy(inputs: GithubInputs = {}): Promise<DeploymentResult> {
+  async deploy({ domain, publish: publishOptions }: GithubInputs = {}): Promise<DeploymentResult> {
+    this.context.instance.metrics.status.message = 'Deploying';
+
     let outputs: DeploymentResult = {};
 
-    if (inputs?.domain?.length) {
-      const domain = getDomains(inputs.domain);
-      outputs.appUrl = `https://${domain}`;
+    if (domain?.length) {
+      const computedDomain = getComputedDomain(domain);
+      outputs.appUrl = `https://${computedDomain}`;
     }
 
     const publishPromise = new Promise((resolve, reject) => {
       publish(
         'out',
-        { message: 'Next Deployment Update', dotfiles: true, ...inputs.publishOptions },
+        { message: 'Next Deployment Update', dotfiles: true, ...publishOptions },
         (err) => {
           if (err) {
             return reject(err);
@@ -93,7 +83,7 @@ class GithubComponent extends Component {
   }
 }
 
-function getDomains(inputDomain: string | string[]): string | undefined {
+function getComputedDomain(inputDomain: string | string[]): string | undefined {
   let domain;
 
   if (typeof inputDomain === 'string') {

@@ -1,4 +1,4 @@
-import { LambdaAtEdgeConfig, LambdaAtEdgeType } from '../../types';
+import { LambdaAtEdgeConfig, LambdaAtEdge } from '../../types';
 
 const validLambdaTriggers = [
   'viewer-request',
@@ -9,7 +9,7 @@ const validLambdaTriggers = [
 
 const triggersAllowedBody = ['viewer-request', 'origin-request'];
 
-const makeCacheItem = (eventType: string, lambdaConfig: LambdaAtEdgeType) => {
+const makeCacheItem = (eventType: string, lambdaConfig: string | LambdaAtEdgeConfig) => {
   let arn, includeBody;
   if (typeof lambdaConfig === 'string') {
     arn = lambdaConfig;
@@ -29,11 +29,8 @@ const makeCacheItem = (eventType: string, lambdaConfig: LambdaAtEdgeType) => {
 };
 
 // adds lambda@edge to cache behavior passed
-const addLambdaAtEdgeToCacheBehavior = (
-  cacheBehavior: any,
-  lambdaAtEdgeConfig: LambdaAtEdgeConfig = {}
-) => {
-  Object.keys(lambdaAtEdgeConfig).forEach((eventType) => {
+const addLambdaAtEdgeToCacheBehavior = (cacheBehavior: any, lambdaAtEdge: LambdaAtEdge = {}) => {
+  Object.keys(lambdaAtEdge).forEach((eventType) => {
     if (!validLambdaTriggers.includes(eventType)) {
       throw new Error(
         `"${eventType}" is not a valid lambda trigger. See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-cloudfront-trigger-events.html for valid event types.`
@@ -41,7 +38,7 @@ const addLambdaAtEdgeToCacheBehavior = (
     }
 
     cacheBehavior.LambdaFunctionAssociations.Items.push(
-      makeCacheItem(eventType, lambdaAtEdgeConfig[eventType])
+      makeCacheItem(eventType, lambdaAtEdge[eventType])
     );
 
     cacheBehavior.LambdaFunctionAssociations.Quantity =

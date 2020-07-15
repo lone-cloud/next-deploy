@@ -16,10 +16,7 @@ export const REQUEST_LAMBDA_CODE_DIR = `${BUILD_DIR}/request-lambda`;
 
 class AwsComponent extends Component {
   async default(inputs: AwsComponentInputs = {}): Promise<DeploymentResult> {
-    if (inputs.buildOptions !== false) {
-      await this.build(inputs);
-    }
-
+    await this.build(inputs);
     return this.deploy(inputs);
   }
 
@@ -105,49 +102,45 @@ class AwsComponent extends Component {
     }
   }
 
-  async build(inputs: AwsComponentInputs = {}): Promise<void> {
-    const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
-    const buildCwd =
-      typeof inputs.buildOptions === 'boolean' ||
-      typeof inputs.buildOptions === 'undefined' ||
-      !inputs.buildOptions.cwd
-        ? nextConfigPath
-        : resolve(inputs.buildOptions.cwd);
-    const buildConfig: BuildOptions = {
-      enabled: inputs.buildOptions
-        ? // @ts-ignore
-          inputs.buildOptions !== false && inputs.buildOptions.enabled !== false
-        : true,
-      cmd: 'node_modules/.bin/next',
-      args: ['build'],
-      ...(typeof inputs.buildOptions === 'object' ? inputs.buildOptions : {}),
-      cwd: buildCwd,
-    };
+  async build({ build, nextConfigDir }: AwsComponentInputs = {}): Promise<void> {
+    const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
+    const builder = new Builder(nextConfigPath, join(nextConfigPath, BUILD_DIR), {
+      cmd: build?.cmd || 'node_modules/.bin/next',
+      cwd: build?.cwd ? resolve(build.cwd) : nextConfigPath,
+      args: build?.args || ['build'],
+    });
 
-    if (buildConfig.enabled) {
-      const builder = new Builder(nextConfigPath, join(nextConfigPath, BUILD_DIR), {
-        cmd: buildConfig.cmd,
-        cwd: buildConfig.cwd,
-        args: buildConfig.args,
-      });
+    this.context.instance.metrics.status.message = 'Building';
 
-      await builder.build(this.context.instance.debugMode ? this.context.debug : undefined);
-    }
+    await builder.build(this.context.instance.debugMode ? this.context.debug : undefined);
   }
 
-  async deploy(inputs: AwsComponentInputs = {}): Promise<DeploymentResult> {
-    const nextConfigPath = inputs.nextConfigDir ? resolve(inputs.nextConfigDir) : process.cwd();
+  async deploy({
+    nextConfigDir,
+    nextStaticDir,
+    bucketRegion,
+    bucketName,
+    cloudfront,
+    policy,
+    publicDirectoryCache,
+    domain,
+    domainType,
+    ...inputs
+  }: AwsComponentInputs = {}): Promise<DeploymentResult> {
+    this.context.instance.metrics.status.message = 'Deploying';
 
-    const nextStaticPath = inputs.nextStaticDir ? resolve(inputs.nextStaticDir) : nextConfigPath;
+    const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
 
-    const customCloudFrontConfig: Record<string, any> = inputs.cloudfrontOptions || {};
-    const bucketRegion = inputs.bucketRegion || 'us-east-1';
+    const nextStaticPath = nextStaticDir ? resolve(nextStaticDir) : nextConfigPath;
+
+    const customCloudFrontConfig: Record<string, any> = cloudfront || {};
+    const calculatedBucketRegion = bucketRegion || 'us-east-1';
 
     const [defaultBuildManifest] = await Promise.all([
       this.readRequestLambdaBuildManifest(nextConfigPath),
     ]);
 
-    const [bucket, cloudFront, requestEdgeLambda] = await Promise.all([
+    const [bucket, AwsCloudFront, requestEdgeLambda] = await Promise.all([
       this.load('@next-deploy/aws-s3'),
       this.load('@next-deploy/aws-cloudfront'),
       this.load('@next-deploy/aws-lambda', 'requestEdgeLambda'),
@@ -155,8 +148,8 @@ class AwsComponent extends Component {
 
     const bucketOutputs = await bucket({
       accelerated: true,
-      name: inputs.bucketName,
-      region: bucketRegion,
+      name: bucketName,
+      region: calculatedBucketRegion,
     });
 
     await AwsS3.uploadStaticAssets({
@@ -164,7 +157,7 @@ class AwsComponent extends Component {
       nextConfigDir: nextConfigPath,
       nextStaticDir: nextStaticPath,
       credentials: this.context.credentials.aws,
-      publicDirectoryCache: inputs.publicDirectoryCache,
+      publicDirectoryCache: publicDirectoryCache,
     });
 
     const bucketUrl = `http://${bucketOutputs.name}.s3.${bucketRegion}.amazonaws.com`;
@@ -187,10 +180,10 @@ class AwsComponent extends Component {
 
     // parse origins from inputs
     let inputOrigins: any = [];
-    if (inputs.cloudfrontOptions && inputs.cloudfrontOptions.origins) {
-      const origins = inputs.cloudfrontOptions.origins as string[];
+    if (cloudfront?.origins) {
+      const origins = cloudfront.origins as string[];
       inputOrigins = origins.map(expandRelativeUrls);
-      delete inputs.cloudfrontOptions.origins;
+      delete cloudfront.origins;
     }
 
     const cloudFrontOrigins = [
@@ -242,7 +235,7 @@ class AwsComponent extends Component {
       role: {
         service: ['lambda.amazonaws.com', 'edgelambda.amazonaws.com'],
         policy: {
-          arn: inputs.policy || 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
+          arn: policy || 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
         },
       },
       memory: getLambdaInputValue('memory', 'requestLambda', 512) as number,
@@ -262,9 +255,9 @@ class AwsComponent extends Component {
 
     let defaultCloudfrontInputs = {} as PathPatternConfig;
 
-    if (inputs.cloudfrontOptions && inputs.cloudfrontOptions.defaults) {
-      defaultCloudfrontInputs = inputs.cloudfrontOptions.defaults;
-      delete inputs.cloudfrontOptions.defaults;
+    if (cloudfront && cloudfront.defaults) {
+      defaultCloudfrontInputs = cloudfront.defaults;
+      delete cloudfront.defaults;
     }
 
     // validate that the custom config paths match generated paths in the manifest
@@ -317,14 +310,10 @@ class AwsComponent extends Component {
       },
     };
 
-    // make sure that origin-response is not set.
-    // this is reserved for our usage
     const defaultLambdaAtEdgeConfig = {
       ...(defaultCloudfrontInputs['lambda@edge'] || {}),
     };
-    delete defaultLambdaAtEdgeConfig['origin-response'];
-
-    const cloudFrontOutputs = await cloudFront({
+    const cloudFrontOutputs = await AwsCloudFront({
       defaults: {
         ttl: 0,
         ...defaultCloudfrontInputs,
@@ -333,7 +322,6 @@ class AwsComponent extends Component {
           queryString: true,
           ...defaultCloudfrontInputs.forward,
         },
-        // everything after here cant be overridden
         allowedHttpMethods: ['HEAD', 'DELETE', 'POST', 'GET', 'OPTIONS', 'PUT', 'PATCH'],
         'lambda@edge': {
           ...defaultLambdaAtEdgeConfig,
@@ -351,17 +339,17 @@ class AwsComponent extends Component {
       credentials: this.context.credentials.aws,
     });
 
-    const { domain, subdomain } = getDomains(inputs.domain);
+    const { domain: calculatedDomain, subdomain } = getDomains(domain);
 
-    if (domain && subdomain) {
+    if (calculatedDomain && subdomain) {
       const domainComponent = await this.load('@next-deploy/aws-domain');
       const domainOutputs = await domainComponent({
         privateZone: false,
-        domain,
+        domain: calculatedDomain,
         subdomains: {
           [subdomain]: cloudFrontOutputs,
         },
-        domainType: inputs.domainType || 'both',
+        domainType: domainType || 'both',
         defaultCloudfrontInputs,
       });
       appUrl = domainOutputs.domains[0];

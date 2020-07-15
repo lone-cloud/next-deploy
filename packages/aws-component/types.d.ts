@@ -14,7 +14,7 @@ type AwsComponentInputs = BaseDeploymentOptions & {
   description?: string | { [key in LambdaType]: string };
   policy?: string;
   domainType?: DomainType;
-  cloudfrontOptions?: CloudFrontInputs;
+  cloudfront?: CloudFrontInputs;
 };
 
 type LambdaType = 'requestLambda' | 'responseLambda';

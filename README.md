@@ -129,18 +129,18 @@ The deployment configuration is to be provided through `next-deploy.config.js`, 
 
 All engines support the basic options:
 
-| Name          | Type                            | Default | Description                                                                                              |
-| ------------- | ------------------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| engine        | `"aws"\|"github"`               | `aws`   | The platform to deploy to.                                                                               |
-| debug         | `boolean`                       | `false` | Print helpful messages to                                                                                |
-| onPreDeploy   | `() => Promise<void>`           | `null`  | A callback that gets called before the deployment.                                                       |
-| onPostDeploy  | `() => Promise<void>`           | `null`  | A callback that gets called after the deployment successfully finishes.                                  |
-| onShutdown    | `() => Promise<void>`           | `null`  | A callback that gets called after the deployment is shutdown by a INT/QUIT/TERM signal like from ctrl+c. |
-| buildOptions  | [`BuildOptions`](#BuildOptions) | `{}`    | Build related options.                                                                                   |
-| nextConfigDir | `string`                        | `./`    | The directory holding the `next.config.js`.                                                              |
-| domain        | `string\|string[]`              | `null`  | The domain to deploy to .                                                                                |
+| Name          | Type                  | Default | Description                                                                                              |
+| ------------- | --------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| engine        | `"aws"\|"github"`     | `aws`   | The platform to deploy to.                                                                               |
+| debug         | `boolean`             | `false` | Print helpful messages to                                                                                |
+| onPreDeploy   | `() => Promise<void>` | `null`  | A callback that gets called before the deployment.                                                       |
+| onPostDeploy  | `() => Promise<void>` | `null`  | A callback that gets called after the deployment successfully finishes.                                  |
+| onShutdown    | `() => Promise<void>` | `null`  | A callback that gets called after the deployment is shutdown by a INT/QUIT/TERM signal like from ctrl+c. |
+| build         | [`Build`](#Build)     | `{}`    | Build related options.                                                                                   |
+| nextConfigDir | `string`              | `./`    | The directory holding the `next.config.js`.                                                              |
+| domain        | `string\|string[]`    | `null`  | The domain to deploy to .                                                                                |
 
-#### BuildOptions
+#### Build
 
 | Name | Type       | Default                  | Description                                          |
 | ---- | ---------- | ------------------------ | ---------------------------------------------------- |
@@ -150,9 +150,9 @@ All engines support the basic options:
 
 ### Github Options
 
-| Name           | Type                                                            | Default                                               | Description                                                                              |
-| -------------- | --------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| publishOptions | [`PublishOptions`](https://github.com/tschaub/gh-pages#options) | `{message: "Next Deployment Update", dotfiles: true}` | The [git-hub page options](https://github.com/tschaub/gh-pages#options) to publish with. |
+| Name    | Type                                                     | Default                                               | Description                                                                              |
+| ------- | -------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| publish | [`Publish`](https://github.com/tschaub/gh-pages#options) | `{message: "Next Deployment Update", dotfiles: true}` | The [git-hub page options](https://github.com/tschaub/gh-pages#options) to publish with. |
 
 ### AWS Options
 
@@ -172,33 +172,31 @@ All engines support the basic options:
 
 #### PublicDirectoryCache
 
-| Name  | Type     | Default                                           | Description                              |
-| ----- | -------- | ------------------------------------------------- | ---------------------------------------- |
-| test  | `string` | `/\.(gif|jpe?g|jp2|tiff|png|webp|bmp|svg|ico)$/i` | The test to apply the caching behaviour. |
-| value | `string` | `public, max-age=31536000, must-revalidate`       | The caching behavior.                    |
+| Name  | Type     | Default                                                   | Description                              |
+| ----- | -------- | --------------------------------------------------------- | ---------------------------------------- |
+| test  | `string` | `/\.(gif\|jpe?g\|jp2\|tiff\|png\|webp\|bmp\|svg\|ico)$/i` | The test to apply the caching behaviour. |
+| value | `string` | `public, max-age=31536000, must-revalidate`               | The caching behavior.                    |
 
 #### CloudFront
 
-| Name                   | Type                                        | Default             | Description                                                                                                                                                 |
-| ---------------------- | ------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ttl                    | `number`                                    | `0`                 | The amount of time that you want objects to stay in CloudFront's cache before it forwards another request to determine whether the object has been updated. |
-| smoothStreaming        | `boolean`                                   | `false`             | Indicates whether you want to distribute media files in the Microsoft Smooth Streaming format.                                                              |
-| viewerProtocolPolicy   | `string`                                    | `redirect-to-https` | The policy for viewers to access the content.                                                                                                               |
-| fieldLevelEncryptionId | `string`                                    | `""`                | The value of the ID for the field-level encryption configuration that you want to use.                                                                      |
-| forward                | [`Forward`](#Forward)                       | `{}`                | Determines the forwarding configuration                                                                                                                     |
-| viewerCertificate      | [`ViewerCertificate`](#ViewerCertificate)   | `{}`                | Determines the SSL/TLS configuration for communicating with viewers.                                                                                        |
-| cookies                | `string\|string[]`                          | `all`               | Indicates which cookies should be forwarded.                                                                                                                |
-| queryString            | `boolean`                                   | `true`              | Indicates whether the query string should be forwarded.                                                                                                     |
-| lambda@edge            | [`LambdaAtEdgeConfig`](#LambdaAtEdgeConfig) | `TODO`              | TODO                                                                                                                                                        |
+| Name                   | Type                                      | Default             | Description                                                                                                                                                 |
+| ---------------------- | ----------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ttl                    | `number`                                  | `0`                 | The amount of time that you want objects to stay in CloudFront's cache before it forwards another request to determine whether the object has been updated. |
+| smoothStreaming        | `boolean`                                 | `false`             | Indicates whether you want to distribute media files in the Microsoft Smooth Streaming format.                                                              |
+| viewerProtocolPolicy   | `string`                                  | `redirect-to-https` | The policy for viewers to access the content.                                                                                                               |
+| fieldLevelEncryptionId | `string`                                  | `""`                | The value of the ID for the field-level encryption configuration that you want to use.                                                                      |
+| forward                | [`Forward`](#Forward)                     | `{}`                | Determines the forwarding configuration                                                                                                                     |
+| viewerCertificate      | [`ViewerCertificate`](#ViewerCertificate) | `{}`                | Determines the SSL/TLS configuration for communicating with viewers.                                                                                        |
+| "lambda@edge"          | [`LambdaAtEdge`](#LambdaAtEdge)           | `{}`                | Additional lambda@edge functions.                                                                                                                           |
 
 #### Forward
 
-| Name                 | Type       | Default | Description |
-| -------------------- | ---------- | ------- | ----------- |
-| cookies              | `string[]` | `TODO`  | TODO        |
-| queryString          | `string`   | `TODO`  | TODO        |
-| headers              | `string[]` | `TODO`  | TODO        |
-| queryStringCacheKeys | `string[]` | `TODO`  | TODO        |
+| Name                 | Type               | Default | Description                                                              |
+| -------------------- | ------------------ | ------- | ------------------------------------------------------------------------ |
+| cookies              | `string\|string[]` | `all`   | Indicates which cookies should be forwarded.                             |
+| queryString          | `boolean`          | `true`  | Indicates whether the query string should be forwarded.                  |
+| headers              | `string[]`         | `[]`    | Headers to forward (whitelisted headers).                                |
+| queryStringCacheKeys | `string[]`         | `[]`    | Details of the query string parameters that you want to use for caching. |
 
 #### ViewerCertificate
 
@@ -208,16 +206,17 @@ All engines support the basic options:
 | SSLSupportMethod       | `string` | `sni-only`     | Specifies which viewers the distribution accepts HTTPS connections from. **sni-only** – The distribution accepts HTTPS connections only from viewers that support server SNI (all modern browsers). **vip** – The distribution accepts HTTPS connections from **all** (not recommended and results in additional monthly charges). |
 | minimumProtocolVersion | `string` | `TLSv1.2_2018` | The security policy that you want to use for HTTPS connections with viewers.                                                                                                                                                                                                                                                       |
 
-#### LambdaAtEdgeConfig
+#### LambdaAtEdge
 
-| Name        | Type      | Default | Description |
-| ----------- | --------- | ------- | ----------- |
-| arn         | `string`  | `null`  | TODO        |
-| includeBody | `boolean` | `TODO`  | TODO        |
+| Name               | Type                                       | Default | Description                                                             |
+| ------------------ | ------------------------------------------ | ------- | ----------------------------------------------------------------------- |
+| _cloudfront event_ | `string\|{arn:string,includeBody:boolean}` | `null`  | The customization for a new CloudFront event handler (lambda function). |
 
 ### Advanced Configuration
 
 Environment variables may be substituted from `process.env` to allow for more flexibility.
+
+TODO
 
 ### CI/CD
 
