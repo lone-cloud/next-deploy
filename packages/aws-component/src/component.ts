@@ -140,7 +140,7 @@ class AwsComponent extends Component {
       this.readRequestLambdaBuildManifest(nextConfigPath),
     ]);
 
-    const [bucket, AwsCloudFront, requestEdgeLambda] = await Promise.all([
+    const [bucket, cloudFront, requestEdgeLambda] = await Promise.all([
       this.load('@next-deploy/aws-s3'),
       this.load('@next-deploy/aws-cloudfront'),
       this.load('@next-deploy/aws-lambda', 'requestEdgeLambda'),
@@ -160,7 +160,7 @@ class AwsComponent extends Component {
       publicDirectoryCache: publicDirectoryCache,
     });
 
-    const bucketUrl = `http://${bucketOutputs.name}.s3.${bucketRegion}.amazonaws.com`;
+    const bucketUrl = `http://${bucketOutputs.name}.s3.${calculatedBucketRegion}.amazonaws.com`;
 
     // If origin is relative path then prepend the bucketUrl
     // e.g. /path => http://bucket.s3.aws.com/path
@@ -211,7 +211,6 @@ class AwsComponent extends Component {
       },
       ...inputOrigins,
     ];
-
     const getLambdaInputValue = (
       inputKey: 'memory' | 'timeout' | 'name' | 'runtime' | 'description',
       lambdaType: LambdaType,
@@ -313,7 +312,7 @@ class AwsComponent extends Component {
     const defaultLambdaAtEdgeConfig = {
       ...(defaultCloudfrontInputs['lambda@edge'] || {}),
     };
-    const cloudFrontOutputs = await AwsCloudFront({
+    const cloudFrontOutputs = await cloudFront({
       defaults: {
         ttl: 0,
         ...defaultCloudfrontInputs,
