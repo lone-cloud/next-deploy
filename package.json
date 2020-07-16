@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "0.2.0-alpha-1",
+  "version": "0.2.0",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -17,8 +17,8 @@
     "dev": "lerna run --parallel build:watch",
     "build": "lerna run build",
     "clean": "lerna run clean",
-    "setup": "yarn && lerna exec -- yarn",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "postinstall": "cd packages/aws-component && npx yarn && cd ../aws-domain && npx yarn && cd ../aws-lambda && npx yarn && cd ../aws-lambda-builder && npx yarn && cd ../cli && npx yarn"
   },
   "bin": {
     "next-deploy": "./packages/cli/dist/index.js"
@@ -33,13 +33,6 @@
   },
   "homepage": "https://github.com/nidratech/next-deploy#readme",
   "dependencies": {
-    "@next-deploy/aws-cloudfront": "link:node_modules/next-deploy/packages/aws-cloudfront",
-    "@next-deploy/aws-component": "link:node_modules/next-deploy/packages/aws-component",
-    "@next-deploy/aws-domain": "link:node_modules/next-deploy/packages/aws-domain",
-    "@next-deploy/aws-lambda": "link:node_modules/next-deploy/packages/aws-lambda",
-    "@next-deploy/aws-lambda-builder": "link:node_modules/next-deploy/packages/aws-lambda-builder",
-    "@next-deploy/aws-s3": "link:node_modules/next-deploy/packages/aws-s3",
-    "@next-deploy/github": "link:node_modules/next-deploy/packages/github",
     "@serverless/aws-iam-role": "^1.0.0",
     "@serverless/aws-lambda-layer": "^1.0.0",
     "@serverless/core": "^1.1.2",

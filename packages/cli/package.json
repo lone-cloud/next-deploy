@@ -1,6 +1,6 @@
 {
   "name": "@next-deploy/cli",
-  "version": "0.0.0",
+  "version": "4.2.0",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,9 +10,8 @@
     "clean": "rm -rf ./dist",
     "compile": "tsc -p tsconfig.build.json"
   },
-  "devDependencies": {
+  "dependencies": {
     "@next-deploy/aws-component": "link:../aws-component",
-    "@next-deploy/github": "link:../github",
-    "typescript": "^3.9.6"
+    "@next-deploy/github": "link:../github"
   }
 }

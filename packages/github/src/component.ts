@@ -14,7 +14,7 @@ class GithubComponent extends Component {
   }
 
   async build({ build, nextConfigDir, domain }: GithubInputs = {}): Promise<void> {
-    this.context.instance.metrics.status.message = 'Building';
+    this.context.status('Building');
 
     const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
 
@@ -37,9 +37,9 @@ class GithubComponent extends Component {
   }
 
   async deploy({ domain, publish: publishOptions }: GithubInputs = {}): Promise<DeploymentResult> {
-    this.context.instance.metrics.status.message = 'Deploying';
+    this.context.status('Deploying');
 
-    let outputs: DeploymentResult = {};
+    const outputs: DeploymentResult = {};
 
     if (domain?.length) {
       const computedDomain = getComputedDomain(domain);

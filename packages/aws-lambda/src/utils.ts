@@ -94,7 +94,7 @@ export const createLambda = async ({
     Handler: handler,
     MemorySize: memory,
     Publish: true,
-    Role: role.arn,
+    Role: role.arn as string,
     Runtime: runtime,
     Timeout: timeout,
     Environment: {

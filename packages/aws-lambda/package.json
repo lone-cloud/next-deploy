@@ -1,8 +1,8 @@
 {
   "name": "@next-deploy/aws-lambda",
-  "version": "0.0.0",
+  "version": "4.2.0",
   "license": "MIT",
-  "main": "serverless.js",
+  "main": "dist/component.js",
   "types": "dist/component.d.ts",
   "scripts": {
     "build": "yarn clean && yarn compile",
@@ -10,8 +10,7 @@
     "clean": "rm -rf ./dist",
     "compile": "tsc -p tsconfig.build.json"
   },
-  "devDependencies": {
-    "@next-deploy/aws-s3": "link:../aws-s3",
-    "typescript": "^3.9.6"
+  "dependencies": {
+    "@next-deploy/aws-s3": "link:../aws-s3"
   }
 }

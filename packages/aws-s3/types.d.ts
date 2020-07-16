@@ -7,6 +7,7 @@ type AwsS3Inputs = {
   dir?: string;
   key?: string;
   zip?: string;
+  accelerated?: boolean;
   cacheControl?: S3.CacheControl;
   keyPrefix?: string;
   cors?: S3.CORSConfiguration;

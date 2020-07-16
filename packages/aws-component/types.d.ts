@@ -19,17 +19,6 @@ type AwsComponentInputs = BaseDeploymentOptions & {
 
 type LambdaType = 'requestLambda' | 'responseLambda';
 
-type LambdaInput = {
-  description: string;
-  handler: string;
-  code: string;
-  role: Record<string, unknown>;
-  memory: number;
-  timeout: number;
-  runtime: string;
-  name?: string;
-};
-
 type DeploymentResult = {
   appUrl: string;
   bucketName: string;

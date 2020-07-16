@@ -21,5 +21,9 @@ export type AwsLambdaInputs = {
 };
 
 type Resource = {
-  arn: string;
+  policy?: {
+    arn: string;
+  };
+  service?: string[];
+  arn?: string;
 };

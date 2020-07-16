@@ -5,11 +5,15 @@ import { resolve, join } from 'path';
 import Builder from '@next-deploy/aws-lambda-builder';
 import AwsS3 from '@next-deploy/aws-s3';
 import AwsCloudFront from '@next-deploy/aws-cloudfront';
+import AwsDomain from '@next-deploy/aws-domain';
+import { SubDomain } from '@next-deploy/aws-domain/types';
+import AwsLambda from '@next-deploy/aws-lambda';
+import { AwsLambdaInputs } from '@next-deploy/aws-lambda/types';
 import { OriginRequestHandlerManifest as BuildManifest } from '@next-deploy/aws-lambda-builder/types';
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { Origin } from '@next-deploy/aws-cloudfront/types';
-import { getDomains } from './utils';
-import { DeploymentResult, AwsComponentInputs, LambdaType, LambdaInput } from '../types';
+import { getDomains, load } from './utils';
+import { DeploymentResult, AwsComponentInputs, LambdaType } from '../types';
 
 export const BUILD_DIR = '.next-deploy-build';
 export const REQUEST_LAMBDA_CODE_DIR = `${BUILD_DIR}/request-lambda`;
@@ -103,14 +107,14 @@ class AwsComponent extends Component {
   }
 
   async build({ build, nextConfigDir }: AwsComponentInputs = {}): Promise<void> {
+    this.context.status('Building');
+
     const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
     const builder = new Builder(nextConfigPath, join(nextConfigPath, BUILD_DIR), {
       cmd: build?.cmd || 'node_modules/.bin/next',
       cwd: build?.cwd ? resolve(build.cwd) : nextConfigPath,
       args: build?.args || ['build'],
     });
-
-    this.context.instance.metrics.status.message = 'Building';
 
     await builder.build(this.context.instance.debugMode ? this.context.debug : undefined);
   }
@@ -120,33 +124,33 @@ class AwsComponent extends Component {
     nextStaticDir,
     bucketRegion,
     bucketName,
-    cloudfront,
+    cloudfront: cloudfrontInput,
     policy,
     publicDirectoryCache,
     domain,
     domainType,
     ...inputs
   }: AwsComponentInputs = {}): Promise<DeploymentResult> {
-    this.context.instance.metrics.status.message = 'Deploying';
+    this.context.status('Deploying');
 
     const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
 
     const nextStaticPath = nextStaticDir ? resolve(nextStaticDir) : nextConfigPath;
 
-    const customCloudFrontConfig: Record<string, any> = cloudfront || {};
+    const customCloudFrontConfig: Record<string, any> = cloudfrontInput || {};
     const calculatedBucketRegion = bucketRegion || 'us-east-1';
 
     const [defaultBuildManifest] = await Promise.all([
       this.readRequestLambdaBuildManifest(nextConfigPath),
     ]);
 
-    const [bucket, cloudFront, requestEdgeLambda] = await Promise.all([
-      this.load('@next-deploy/aws-s3'),
-      this.load('@next-deploy/aws-cloudfront'),
-      this.load('@next-deploy/aws-lambda', 'requestEdgeLambda'),
+    const [bucket, cloudfront, requestEdgeLambda] = await Promise.all([
+      load<AwsS3>('@next-deploy/aws-s3', this),
+      load<AwsCloudFront>('@next-deploy/aws-cloudfront', this),
+      load<AwsLambda>('@next-deploy/aws-lambda', this, 'requestEdgeLambda'),
     ]);
 
-    const bucketOutputs = await bucket({
+    const bucketOutputs = await bucket.default({
       accelerated: true,
       name: bucketName,
       region: calculatedBucketRegion,
@@ -180,10 +184,10 @@ class AwsComponent extends Component {
 
     // parse origins from inputs
     let inputOrigins: any = [];
-    if (cloudfront?.origins) {
-      const origins = cloudfront.origins as string[];
+    if (cloudfrontInput?.origins) {
+      const origins = cloudfrontInput.origins as string[];
       inputOrigins = origins.map(expandRelativeUrls);
-      delete cloudfront.origins;
+      delete cloudfrontInput.origins;
     }
 
     const cloudFrontOrigins = [
@@ -228,7 +232,7 @@ class AwsComponent extends Component {
       return inputValue[lambdaType] || defaultValue;
     };
 
-    const defaultEdgeLambdaInput: LambdaInput = {
+    const defaultEdgeLambdaInput: Partial<AwsLambdaInputs> = {
       handler: 'index.handler',
       code: join(nextConfigPath, REQUEST_LAMBDA_CODE_DIR),
       role: {
@@ -248,15 +252,15 @@ class AwsComponent extends Component {
       ) as string,
     };
 
-    const requestEdgeLambdaOutputs = await requestEdgeLambda(defaultEdgeLambdaInput);
+    const requestEdgeLambdaOutputs = await requestEdgeLambda.default(defaultEdgeLambdaInput);
 
     const requestEdgeLambdaPublishOutputs = await requestEdgeLambda.publishVersion();
 
     let defaultCloudfrontInputs = {} as PathPatternConfig;
 
-    if (cloudfront && cloudfront.defaults) {
-      defaultCloudfrontInputs = cloudfront.defaults;
-      delete cloudfront.defaults;
+    if (cloudfrontInput && cloudfrontInput.defaults) {
+      defaultCloudfrontInputs = cloudfrontInput.defaults;
+      delete cloudfrontInput.defaults;
     }
 
     // validate that the custom config paths match generated paths in the manifest
@@ -269,12 +273,7 @@ class AwsComponent extends Component {
         ...(config['lambda@edge'] || {}),
       };
 
-      // here we are removing configs that cannot be overridden
-      if (path === 'api/*') {
-        // for "api/*" we need to make sure we aren't overriding the predefined lambda handler
-        // delete is idempotent so it's safe
-        delete edgeConfig['origin-request'];
-      } else if (!['static/*', '_next/*'].includes(path)) {
+      if (!['static/*', '_next/*'].includes(path)) {
         // for everything but static/* and _next/* we want to ensure that they are pointing at our lambda
         edgeConfig[
           'origin-request'
@@ -312,7 +311,7 @@ class AwsComponent extends Component {
     const defaultLambdaAtEdgeConfig = {
       ...(defaultCloudfrontInputs['lambda@edge'] || {}),
     };
-    const cloudFrontOutputs = await cloudFront({
+    const cloudFrontOutputs = await cloudfront.default({
       defaults: {
         ttl: 0,
         ...defaultCloudfrontInputs,
@@ -341,12 +340,12 @@ class AwsComponent extends Component {
     const { domain: calculatedDomain, subdomain } = getDomains(domain);
 
     if (calculatedDomain && subdomain) {
-      const domainComponent = await this.load('@next-deploy/aws-domain');
-      const domainOutputs = await domainComponent({
+      const domainComponent = await load<AwsDomain>('@next-deploy/aws-domain', this);
+      const domainOutputs = await domainComponent.default({
         privateZone: false,
         domain: calculatedDomain,
         subdomains: {
-          [subdomain]: cloudFrontOutputs,
+          [subdomain]: cloudFrontOutputs as SubDomain,
         },
         domainType: domainType || 'both',
         defaultCloudfrontInputs,
@@ -362,9 +361,9 @@ class AwsComponent extends Component {
 
   async remove(): Promise<void> {
     const [bucket, cloudfront, domain] = await Promise.all([
-      this.load('@next-deploy/aws-s3'),
-      this.load('@next-deploy/aws-cloudfront'),
-      this.load('@next-deploy/aws-domain'),
+      load<AwsS3>('@next-deploy/aws-s3', this),
+      load<AwsCloudFront>('@next-deploy/aws-cloudfront', this),
+      load<AwsDomain>('@next-deploy/aws-domain', this),
     ]);
 
     await Promise.all([bucket.remove(), cloudfront.remove(), domain.remove()]);

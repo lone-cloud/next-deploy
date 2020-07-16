@@ -135,7 +135,7 @@ const handler = ({
   } as CloudFrontResultResponse;
 
   const newStream = new Stream.Readable();
-  const req = { ...newStream, ...IncomingMessage.prototype } as IncomingMessage;
+  const req = Object.assign(newStream, IncomingMessage.prototype);
   req.url = request.uri;
   req.method = request.method;
   req.rawHeaders = [];
@@ -158,6 +158,16 @@ const handler = ({
     req.headers[lowercaseKey] = headerKeyValPairs[0].value;
   }
 
+  // @ts-ignore
+  req.getHeader = (name: string) => req.headers[name.toLowerCase()];
+
+  // @ts-ignore
+  req.getHeaders = () => req.headers;
+
+  if (request.body && request.body.data) {
+    req.push(request.body.data, request.body.encoding ? 'base64' : undefined);
+  }
+
   req.push(null);
 
   const res = new Stream() as PrivateServerResponse;
@@ -175,14 +185,12 @@ const handler = ({
 
   res.headers = {};
   //@ts-ignore
-  res.writeHead = (status: number, headers: OutgoingHttpHeaders) => {
-    response.status = status.toString();
+  res.writeHead = (status, headers: OutgoingHttpHeaders) => {
+    response.status = status;
 
     if (headers) {
-      res.headers = { ...res.headers, ...headers };
+      res.headers = Object.assign(res.headers, headers);
     }
-
-    return res;
   };
   res.write = (chunk: any) => {
     if (!response.body) {

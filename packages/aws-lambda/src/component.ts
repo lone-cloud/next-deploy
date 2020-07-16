@@ -50,7 +50,7 @@ const defaults: Partial<AwsLambdaInputs> = {
 
 class LambdaComponent extends Component {
   async default(inputs: Partial<AwsLambdaInputs> = {}) {
-    this.context.status(`Deploying`);
+    this.context.status('Deploying');
 
     const config = mergeDeepRight(defaults, inputs) as AwsLambdaInputs;
 

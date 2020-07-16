@@ -2,15 +2,30 @@
 # yarn lockfile v1
 
 
+"@next-deploy/aws-cloudfront@link:../aws-cloudfront":
+  version "0.0.0"
+  uid ""
+
 "@next-deploy/aws-component@link:../aws-component":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-domain@link:../aws-domain":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-lambda-builder@link:../aws-lambda-builder":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-lambda@link:../aws-lambda":
+  version "0.0.0"
+  uid ""
+
+"@next-deploy/aws-s3@link:../aws-s3":
   version "0.0.0"
   uid ""
 
 "@next-deploy/github@link:../github":
   version "0.0.0"
   uid ""
-
-typescript@^3.9.6:
-  version "3.9.6"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.6.tgz#8f3e0198a34c3ae17091b35571d3afd31999365a"
-  integrity sha512-Pspx3oKAPJtjNwE92YS05HQoY7z2SFyOpHo9MqJor3BXAGNaPUs83CuVp9VISFkSjyRfiTpmKuAYGJB7S7hOxw==

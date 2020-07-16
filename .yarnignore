@@ -1,13 +1,13 @@
 .github
 .vscode
 lerna.json
-babel.config.js
 tsconfig.json
-babel.config.js
+.babelrc.json
 CODE_OF_CONDUCT.md
 .prettierrc
-.eslintrc.js
+.eslintrc.json
 .yarnignore
+*.tgz
 src
 tsconfig.build.json
 examples

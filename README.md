@@ -5,6 +5,7 @@ Effortless deployment for Next.js apps 🚀
 ## Table of Contents
 
 - [Getting Started](#Getting-Started)
+- [Features](#Features)
 - [Background](#Background)
 - [CLI](#CLI)
 - [Environment](#Environment)
@@ -14,8 +15,9 @@ Effortless deployment for Next.js apps 🚀
   - [Base Options](#Base-Options)
   - [GitHub Options](#GitHub-Options)
   - [AWS Options](#AWS-Options)
-- [Advanced Configuration](#Advanced-Configuration)
-- [CI/CD](#CICD)
+- [Advanced Usage](#Advanced-Usage)
+  - [Persisting Deployment State](#Persisting-State)
+  - [CI/CD](#CICD)
 
 ## Getting Started
 
@@ -30,9 +32,13 @@ Optionally you can also add and run `next deploy` from your Next.js app:
 - `yarn add --dev next-deploy`
 - `yarn next-deploy`
 
+## Features
+
+TODO
+
 ## Background
 
-Next Deploy was created to deploy web applications built using the wonderful [Next.js](https://nextjs.org/) framework. It allows teams to easily integrate with our supported engines (AWS, GitHub Pages) and keep the entirety of their code in source control; from frontend, to backend, to the deployment logic.
+Next Deploy was created to deploy web applications built using the wonderful [Next.js](https://nextjs.org/) framework. It allows teams to easily integrate with the supported engines (AWS, GitHub Pages) and keep the entirety of their code in source control. From frontend, to backend, to the deployment logic.
 
 Next Deploy started as a fork of [serverless-next.js](https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various orphaned [serverless-components](https://github.com/serverless-components/). Next Deploy was created out of a need for a better, strongly typed codebase and an ability to provide more advanced functionality without the [influence of corporate backers](https://opencollective.com/goserverless#section-contributions).
 
@@ -73,10 +79,11 @@ You will need the following permissions:
 <details>
   <summary>Click to view</summary>
 
-```
+```javascript
+[
   'acm:DescribeCertificate', // only for custom domains
-  'acm:ListCertificates',    // only for custom domains
-  'acm:RequestCertificate',  // only for custom domains
+  'acm:ListCertificates', // only for custom domains
+  'acm:RequestCertificate', // only for custom domains
   'cloudfront:CreateCloudFrontOriginAccessIdentity',
   'cloudfront:CreateDistribution',
   'cloudfront:CreateInvalidation',
@@ -115,7 +122,8 @@ You will need the following permissions:
   's3:ListBucket',
   's3:PutAccelerateConfiguration',
   's3:PutBucketPolicy',
-  's3:PutObject';
+  's3:PutObject',
+];
 ```
 
 </details>
@@ -212,12 +220,28 @@ All engines support the basic options:
 | ------------------ | ------------------------------------------ | ------- | ----------------------------------------------------------------------- |
 | _cloudfront event_ | `string\|{arn:string,includeBody:boolean}` | `null`  | The customization for a new CloudFront event handler (lambda function). |
 
-### Advanced Configuration
+## Advanced Usage
 
-Environment variables may be substituted from `process.env` to allow for more flexibility.
+### Persisting State
 
 TODO
 
 ### CI/CD
+
+Implement [CI/CD](#https://en.wikipedia.org/wiki/CI/CD) in your workflow with Next Deploy by substituting environment variables into your `next-deploy.config.js`.
+
+As an example:
+
+```javascript
+module.exports = {
+  bucketName: process.env.MY_APP_BUCKET_NAME,
+  description: process.env.MY_APP_LAMBDA_DESCRIPTION,
+  name: {
+    requestLambda: process.env.MY_APP_REQUEST_LAMBDA_NAME,
+  },
+  domain: [process.env.MY_APP_SUBDOMAIN, process.env.MY_APP_DOMAIN],
+  debug: true,
+};
+```
 
 TODO
