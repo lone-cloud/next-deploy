@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -18,7 +18,7 @@
     "build": "lerna run build",
     "clean": "lerna run clean",
     "prepack": "yarn build",
-    "postinstall": "cd packages/aws-component && npx yarn && cd ../aws-domain && npx yarn && cd ../aws-lambda && npx yarn && cd ../aws-lambda-builder && npx yarn && cd ../cli && npx yarn"
+    "postinstall": "cd packages/aws-component && npx yarn --no-lockfile && cd ../aws-domain && npx yarn --no-lockfile && cd ../aws-lambda && npx yarn --no-lockfile && cd ../aws-lambda-builder && npx yarn --no-lockfile && cd ../cli && npx yarn --no-lockfile"
   },
   "bin": {
     "next-deploy": "./packages/cli/dist/index.js"

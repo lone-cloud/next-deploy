@@ -11,3 +11,4 @@ CODE_OF_CONDUCT.md
 src
 tsconfig.build.json
 examples
+*.gif

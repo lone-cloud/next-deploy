@@ -23,7 +23,7 @@ Effortless deployment for Next.js apps 🚀
 
 ## Getting Started
 
-Make sure your environment is [configured to deploy](#Configuration).
+Make sure your environment is [configured to deploy](#Environment).
 
 Run your deployment with a one-liner:
 
@@ -36,6 +36,8 @@ Optionally you can also add and run `next deploy` from your Next.js app:
 
 You can safely add the `.next-deploy` and `.next-deploy-build` directories to your `.gitignore`.
 
+<img src="deploy-term.gif" width="550" height="321" >
+
 ## Features
 
 Next Deploy strives to support all the latest major Next.js features and allow for effortless deployment to either GitHub Pages ([static exports](#https://nextjs.org/docs/advanced-features/static-html-export) only) or AWS (full functionality).
@@ -43,13 +45,17 @@ Next Deploy strives to support all the latest major Next.js features and allow f
 AWS deployments will be created by running `next build` in `serverless-trace` mode. The pre-rendered and static files will be published to S3 and served through CloudFront. The handling of application-specific routing and some advanced functionality will be provided through [Lambda@Edge](#https://aws.amazon.com/lambda/edge/) functions.
 AWS deployments will also create new Route 53 records (if domains are configured). Note that you will need to [migrate to Route 53](#https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html) for DNS hosting.
 
-Work is underway to provide support for: getStaticPaths with fallback, preview mode and incremental static regeneration.
+Work is underway to provide support for:
+
+- getStaticPaths with fallback
+- preview mode
+- incremental static regeneration
 
 ## Background
 
 Next Deploy was created to deploy web applications built using the wonderful [Next.js](https://nextjs.org/) framework. It allows teams to easily integrate with the supported engines (AWS, GitHub Pages) and keep the entirety of their code in source control. From frontend, to backend, to the deployment logic.
 
-Next Deploy started as a fork of [serverless-next.js](https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various orphaned [serverless-components](https://github.com/serverless-components/). Next Deploy was created out of a need for a better, strongly typed codebase and an ability to provide more advanced functionality without the [influence of corporate backers](https://opencollective.com/goserverless#section-contributions).
+Next Deploy started as a fork of [serverless-next.js](https://github.com/serverless-nextjs/serverless-next.js) which itself is an orchestrator of various [serverless-components](https://github.com/serverless-components/).
 
 ## CLI
 
@@ -84,7 +90,7 @@ Note how `build` and `deploy` can be run separately through the CLI. This allows
 
 ### GitHub
 
-No specific environment configuration is necessary. By default, your app will be built and exported to the `gh-pages` branch.
+No specific environment configuration is necessary. By default, your app will be built and [exported](#https://nextjs.org/docs/advanced-features/static-html-export) to the `gh-pages` branch.
 
 ### AWS
 
@@ -139,7 +145,7 @@ You will need the following permissions:
   'route53:ListResourceRecordSets', // only for custom domains
   's3:CreateBucket',
   's3:GetAccelerateConfiguration',
-  's3:GetObject', // only if persisting state to S3 for CI/CD
+  's3:GetObject',
   's3:HeadBucket',
   's3:ListBucket',
   's3:PutAccelerateConfiguration',
@@ -198,7 +204,7 @@ All engines support the basic options:
 | policy               | `string`                                                   | <details>`arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`</details> | The arn policy of the lambda.                                                                                                                                                                                       |
 | publicDirectoryCache | `boolean\|`[`PublicDirectoryCache`](#PublicDirectoryCache) | `true`                                                                                | Customize the public/static directory asset caching policy. Assigning an object lets you customize the caching policy and the types of files being cached. Assigning false disables caching.                        |
 | runtime              | `string`                                                   | `nodejs12.x`                                                                          | The identifier of the lambda's runtime.                                                                                                                                                                             |
-| stage                | `boolean |`[`Stage`](#Stage)                               | `false`                                                                               | Configure the stage ('dev', 'staging', 'production') of your deployment that will be used to synchronize its deployed state to an S3 bucket..                                                                       |
+| stage                | `boolean \|`[`Stage`](#Stage)                              | `false`                                                                               | Configure the stage ('dev', 'staging', 'production') of your deployment that will be used to synchronize its deployed state to an S3 bucket..                                                                       |
 | timeout              | `number`                                                   | `10`                                                                                  | The amount of time that the lambda allows a function to run before stopping it. The maximum allowed value is 900 seconds.                                                                                           |
 
 #### PublicDirectoryCache
@@ -247,9 +253,9 @@ All engines support the basic options:
 
 #### LambdaAtEdge
 
-| Name               | Type                                       | Default | Description                                                             |
-| ------------------ | ------------------------------------------ | ------- | ----------------------------------------------------------------------- |
-| _cloudfront event_ | `string\|{arn:string,includeBody:boolean}` | `null`  | The customization for a new CloudFront event handler (lambda function). |
+| Name                 | Type                                       | Default | Description                                                             |
+| -------------------- | ------------------------------------------ | ------- | ----------------------------------------------------------------------- |
+| \*cloudfront event\* | `string\|{arn:string,includeBody:boolean}` | `null`  | The customization for a new CloudFront event handler (lambda function). |
 
 ## Advanced Usage
 
