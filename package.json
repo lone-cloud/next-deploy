@@ -39,7 +39,7 @@
     "@zeit/node-file-trace": "^0.8.0",
     "ansi-escapes": "^4.3.1",
     "archiver": "^4.0.2",
-    "aws-sdk": "^2.714.2",
+    "aws-sdk": "^2.715.0",
     "chalk": "^4.1.0",
     "execa": "^4.0.3",
     "figures": "^3.2.0",

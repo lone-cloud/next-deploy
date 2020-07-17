@@ -38,11 +38,16 @@ const syncStageStateDirectory = async ({
 
     return Promise.all([...buildStateRootDirectoryFilesUploads]);
   } else {
-    await s3.setVersioning({ versioned });
+    const files: { name: string; data: S3.GetObjectOutput }[] = [];
+
+    if (versioned !== undefined) {
+      await s3.setVersioning({ versioned });
+    }
+
     const bucketFiles = await s3.listFiles({
       s3Key: stage,
     });
-    const files: { name: string; data: S3.GetObjectOutput }[] = [];
+
     for (const file of bucketFiles.Contents || []) {
       if (file.Key) {
         const fileData = await s3.downloadFile({ s3Key: file.Key });
@@ -50,7 +55,11 @@ const syncStageStateDirectory = async ({
       }
     }
 
-    files.forEach(({ name, data }) => writeFile(name, data.Body));
+    for (const { name, data } of files || []) {
+      if (data.Body) {
+        await writeFile(name, data.Body.toString());
+      }
+    }
   }
 };
 

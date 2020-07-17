@@ -8,6 +8,7 @@ Effortless deployment for Next.js apps 🚀
 - [Features](#Features)
 - [Background](#Background)
 - [CLI](#CLI)
+  - [Distributed Deployments](#Distributed-Deployments)
 - [Environment](#Environment)
   - [GitHub](#GitHub)
   - [AWS](#AWS)
@@ -17,6 +18,7 @@ Effortless deployment for Next.js apps 🚀
   - [AWS Options](#AWS-Options)
 - [Advanced Usage](#Advanced-Usage)
   - [Redirecting Domains](#Redirecting-Domains)
+  - [Deployment State](#Deployment-State)
   - [CI/CD](#CICD)
 
 ## Getting Started
@@ -36,7 +38,12 @@ You can safely add the `.next-deploy` and `.next-deploy-build` directories to yo
 
 ## Features
 
-TODO
+Next Deploy strives to support all the latest major Next.js features and allow for effortless deployment to either GitHub Pages ([static exports](#https://nextjs.org/docs/advanced-features/static-html-export) only) or AWS (full functionality).
+
+AWS deployments will be created by running `next build` in `serverless-trace` mode. The pre-rendered and static files will be published to S3 and served through CloudFront. The handling of application-specific routing and some advanced functionality will be provided through [Lambda@Edge](#https://aws.amazon.com/lambda/edge/) functions.
+AWS deployments will also create new Route 53 records (if domains are configured). Note that you will need to [migrate to Route 53](#https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html) for DNS hosting.
+
+Work is underway to provide support for: getStaticPaths with fallback, preview mode and incremental static regeneration.
 
 ## Background
 
@@ -60,7 +67,9 @@ There are currently 5 supported arguments:
 
 - **remove**: Remove the deployed resources. Note that some resources (such as lambda@edge lambdas need to be cleaned up manually due to a timing constraint).
 
-Note how `build` and `deploy` can be run separately. This allows for creating build artifacts that could be deployed at a later time. You may want to publish such build artifacts to your private artifactory for later retrieval and/or analysis. Consider publishing with the following config in your `package.json`:
+### Distributed Deployments
+
+Note how `build` and `deploy` can be run separately through the CLI. This allows for creating build artifacts that could be deployed at a later time. You may want to publish such build artifacts to your private artifactory for later retrieval (can be useful for rollbacks) and/or analysis. Consider publishing with the following config in your `package.json`:
 
 ```javascript
 "files": [
@@ -248,6 +257,12 @@ All engines support the basic options:
 
 For AWS deployments, when using the `domainType` option with either `apex` or `domain` values, the automatic redirection from the unsupported domain type will not automatically work, but there are manual one time steps you [outlined here](https://simonecarletti.com/blog/2016/08/redirect-domain-https-amazon-cloudfront/#configuring-the-amazon-s3-static-site-with-redirect). In summary, you will have to create a new S3 bucket and set it up with static website hosting to redirect requests to your supported subdomain type (ex. "www.example.com" or "example.com"). To be able to support HTTPS redirects, you'll need to set up a CloudFront distribution with the S3 redirect bucket as the origin. Finally, you'll need to create an "A" record in Route 53 with your newly created CloudFront distribution as the alias target.
 
+## Deployment State
+
+For AWS deployments, Next Deploy must know the state of your previous deployment, otherwise it will start spinning up new instances. You may find the local state files in your `.next-deploy` directory.
+
+When working on a team or trying to implement [CI/CD](#CICD) it is advisable to persist the deployment state for each stage using the `stage` AWS option. Alternatively, one may backup and restore the deployment state by using the `onPreDeploy` and `onPostDeploy` callbacks.
+
 ### CI/CD
 
 Implement [CI/CD](#https://en.wikipedia.org/wiki/CI/CD) in your workflow with Next Deploy by substituting environment variables into your `next-deploy.config.js`.
@@ -278,4 +293,6 @@ module.exports = {
 };
 ```
 
-Note that for AWS deployments, Next Deploy must know the state of your previous deployment, otherwise it will start spinning up new instances. The most important configuration option in the example above is `staging`. It will allow for your deployment state to be persisted in S3 and it will be synced with the locale state at the start of every build. Alternatively, one may backup and restore the state by using the `onPreDeploy` and `onPostDeploy` callbacks.
+The most important configuration option in the example above is `stage`. It will allow for the deployment state to be persisted in S3 and it will be synced with the locale state at the start of every build.
+
+While implementing CI/CD in your project, consider following the [latest Next.js guidelines for storing](#https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables) and loading the environment variables in `.env*` files.
