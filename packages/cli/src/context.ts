@@ -135,6 +135,7 @@ class Context {
     process.stdout.write(ansiEscapes.cursorShow);
     if (!this.isStatusEngineActive()) {
       console.log();
+      error && console.error(error);
       process.exit(0);
     }
 

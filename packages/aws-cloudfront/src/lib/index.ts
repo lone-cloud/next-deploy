@@ -170,7 +170,7 @@ const disableCloudFrontDistribution = async (
 
   const res = await cf.updateDistribution(updateDistributionRequest).promise();
 
-  debug(`Waiting for the CloudFront distribution changes to be deployed.`);
+  debug('Waiting for the CloudFront distribution changes to be deployed.');
   await cf.waitFor('distributionDeployed', { Id: distributionId }).promise();
 
   return res;
@@ -181,13 +181,16 @@ export const deleteCloudFrontDistribution = async (
   distributionId: string,
   debug: (message: string) => void
 ): Promise<void> => {
-  let res = await cf.getDistributionConfig({ Id: distributionId }).promise();
+  try {
+    const res = await cf.getDistributionConfig({ Id: distributionId }).promise();
 
-  if (res?.DistributionConfig?.Enabled) {
-    debug(`Disabling CloudFront distribution of ID ${distributionId} before removal.`);
-    res = await disableCloudFrontDistribution(cf, distributionId, debug);
+    const params = { Id: distributionId, IfMatch: res.ETag };
+    await cf.deleteDistribution(params).promise();
+  } catch (e) {
+    if (e.code === 'DistributionNotDisabled') {
+      await disableCloudFrontDistribution(cf, distributionId, debug);
+    } else {
+      throw e;
+    }
   }
-
-  const params = { Id: distributionId, IfMatch: res.ETag };
-  await cf.deleteDistribution(params).promise();
 };

@@ -1,42 +1,29 @@
 import { S3 } from 'aws-sdk';
 import path from 'path';
-import fse from 'fs-extra';
+import { readJSON, pathExists } from 'fs-extra';
 import { PrerenderManifest } from 'next/dist/build/index';
-import klaw, { Item } from 'klaw';
 
 import S3ClientFactory from './s3';
+import { pathToPosix, readDirectoryFiles, filterOutDirectories } from './utils';
 import getPublicAssetCacheControl from './getPublicAssetCacheControl';
 import { UploadStaticAssetsOptions, PublicDirectoryCache } from '../../types';
-
-const readDirectoryFiles = (directory: string): Promise<Array<Item>> => {
-  const items: Item[] = [];
-  return new Promise((resolve, reject) => {
-    klaw(directory.trim())
-      .on('data', (item) => items.push(item))
-      .on('end', () => {
-        resolve(items);
-      })
-      .on('error', reject);
-  });
-};
-
-const pathToPosix = (path: string): string => path.replace(/\\/g, '/');
-const filterOutDirectories = (fileItem: Item): boolean => !fileItem.stats.isDirectory();
 
 export const SERVER_CACHE_CONTROL_HEADER = 'public, max-age=0, s-maxage=2678400, must-revalidate';
 export const IMMUTABLE_CACHE_CONTROL_HEADER = 'public, max-age=31536000, immutable';
 
-const uploadStaticAssets = async (
-  options: UploadStaticAssetsOptions
-): Promise<S3.ManagedUpload.SendData[]> => {
-  const { bucketName, nextConfigDir, nextStaticDir = nextConfigDir } = options;
+const uploadStaticAssets = async ({
+  bucketName,
+  nextConfigDir,
+  nextStaticDir = nextConfigDir,
+  publicDirectoryCache,
+  credentials,
+}: UploadStaticAssetsOptions): Promise<S3.ManagedUpload.SendData[]> => {
   const s3 = await S3ClientFactory({
     bucketName,
-    credentials: options.credentials,
+    credentials,
   });
 
   const dotNextDirectory = path.join(nextConfigDir, '.next');
-
   const buildStaticFiles = await readDirectoryFiles(path.join(dotNextDirectory, 'static'));
 
   const buildStaticFileUploads = buildStaticFiles
@@ -53,7 +40,7 @@ const uploadStaticAssets = async (
       });
     });
 
-  const pagesManifest = await fse.readJSON(
+  const pagesManifest = await readJSON(
     path.join(dotNextDirectory, 'serverless/pages-manifest.json')
   );
 
@@ -71,7 +58,7 @@ const uploadStaticAssets = async (
       });
     });
 
-  const prerenderManifest: PrerenderManifest = await fse.readJSON(
+  const prerenderManifest: PrerenderManifest = await readJSON(
     path.join(dotNextDirectory, 'prerender-manifest.json')
   );
 
@@ -110,7 +97,7 @@ const uploadStaticAssets = async (
     publicDirectoryCache?: PublicDirectoryCache
   ): Promise<Promise<S3.ManagedUpload.SendData>[]> => {
     const directoryPath = path.join(nextStaticDir, directory);
-    if (!(await fse.pathExists(directoryPath))) {
+    if (!(await pathExists(directoryPath))) {
       return Promise.resolve([]);
     }
 
@@ -125,14 +112,8 @@ const uploadStaticAssets = async (
     );
   };
 
-  const publicDirUploads = await uploadPublicOrStaticDirectory(
-    'public',
-    options.publicDirectoryCache
-  );
-  const staticDirUploads = await uploadPublicOrStaticDirectory(
-    'static',
-    options.publicDirectoryCache
-  );
+  const publicDirUploads = await uploadPublicOrStaticDirectory('public', publicDirectoryCache);
+  const staticDirUploads = await uploadPublicOrStaticDirectory('static', publicDirectoryCache);
 
   const allUploads = [
     ...buildStaticFileUploads, // .next/static

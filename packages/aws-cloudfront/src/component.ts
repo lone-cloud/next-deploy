@@ -1,4 +1,4 @@
-import { CloudFront, S3, Credentials } from 'aws-sdk';
+import { CloudFront as AwsCloudFront, S3, Credentials } from 'aws-sdk';
 import { equals } from 'ramda';
 import { Component } from '@serverless/core';
 
@@ -10,7 +10,7 @@ import {
 } from './lib';
 import { CloudFrontInputs } from '../types';
 
-class CloudFrontComponent extends Component {
+class CloudFront extends Component {
   static createInvalidation({
     credentials,
     distributionId,
@@ -19,7 +19,7 @@ class CloudFrontComponent extends Component {
     credentials: Credentials;
     distributionId: string;
     paths?: string[];
-  }): Promise<CloudFront.CreateInvalidationResult> {
+  }): Promise<AwsCloudFront.CreateInvalidationResult> {
     return createInvalidation({ credentials, distributionId, paths });
   }
 
@@ -35,7 +35,7 @@ class CloudFrontComponent extends Component {
       `Starting deployment of CloudFront distribution to the ${inputs.region} region.`
     );
 
-    const cf = new CloudFront({
+    const cf = new AwsCloudFront({
       credentials: this.context.credentials.aws,
       region: inputs.region,
     });
@@ -79,7 +79,7 @@ class CloudFrontComponent extends Component {
       return;
     }
 
-    const cf = new CloudFront({
+    const cf = new AwsCloudFront({
       credentials: this.context.credentials.aws,
       region: this.state.region,
     });
@@ -87,7 +87,12 @@ class CloudFrontComponent extends Component {
     this.context.debug(
       `Removing CloudFront distribution of ID ${this.state.id}. It could take a while.`
     );
-    await deleteCloudFrontDistribution(cf, this.state.id, this.context.debug);
+
+    try {
+      await deleteCloudFrontDistribution(cf, this.state.id, this.context.debug);
+    } catch (error) {
+      this.context.debug(error.message);
+    }
 
     this.state = {};
     await this.save();
@@ -96,4 +101,4 @@ class CloudFrontComponent extends Component {
   }
 }
 
-export default CloudFrontComponent;
+export default CloudFront;

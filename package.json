@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -36,10 +36,10 @@
     "@serverless/aws-iam-role": "^1.0.0",
     "@serverless/aws-lambda-layer": "^1.0.0",
     "@serverless/core": "^1.1.2",
-    "@zeit/node-file-trace": "^0.7.0",
+    "@zeit/node-file-trace": "^0.8.0",
     "ansi-escapes": "^4.3.1",
     "archiver": "^4.0.2",
-    "aws-sdk": "^2.714.0",
+    "aws-sdk": "^2.714.2",
     "chalk": "^4.1.0",
     "execa": "^4.0.3",
     "figures": "^3.2.0",
@@ -88,7 +88,7 @@
     "prettier": "^2.0.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.7"
   },
   "husky": {
     "hooks": {

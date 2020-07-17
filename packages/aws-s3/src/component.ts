@@ -3,7 +3,7 @@ import { S3 } from 'aws-sdk';
 import { mergeDeepRight } from 'ramda';
 import { Component, utils } from '@serverless/core';
 
-import { UploadStaticAssetsOptions, AwsS3Inputs } from '../types';
+import { UploadStaticAssetsOptions, SyncStageStateDirectoryOptions, AwsS3Inputs } from '../types';
 import {
   getClients,
   clearBucket,
@@ -16,6 +16,7 @@ import {
   configureCors,
 } from './lib/utils';
 import uploadStaticAssets from './lib/uploadStaticAssets';
+import syncStageStateDirectory from './lib/syncStageStateDirectory';
 
 const defaults = {
   name: undefined,
@@ -28,6 +29,12 @@ class AwsS3 extends Component {
     options: UploadStaticAssetsOptions
   ): Promise<S3.ManagedUpload.SendData[]> {
     return uploadStaticAssets(options);
+  }
+
+  static syncStageStateDirectory(
+    options: SyncStageStateDirectoryOptions
+  ): Promise<S3.ManagedUpload.SendData[]> {
+    return syncStageStateDirectory(options);
   }
 
   async default(inputs: AwsS3Inputs = {}): Promise<any> {
@@ -82,7 +89,7 @@ class AwsS3 extends Component {
     this.context.status(`Removing`);
 
     if (!this.state.name) {
-      this.context.debug(`Aborting removal. Bucket name not found in state.`);
+      this.context.debug(`Aborting S3 removal - bucket name not found in state.`);
       return;
     }
 

@@ -2,6 +2,7 @@ import { Credentials, S3 } from 'aws-sdk';
 import fs from 'fs';
 import path from 'path';
 import klawSync from 'klaw-sync';
+import klaw, { Item } from 'klaw';
 import mime from 'mime-types';
 import UploadStream from 's3-stream-upload';
 import { isEmpty } from 'ramda';
@@ -270,3 +271,22 @@ export const configureCors = async (
     throw e;
   }
 };
+
+export const pathToPosix = (path: string): string => path.replace(/\\/g, '/');
+
+export const readDirectoryFiles = (directory: string): Promise<Array<Item>> => {
+  const items: Item[] = [];
+  return new Promise((resolve, reject) => {
+    klaw(directory.trim())
+      .on('data', (item) => items.push(item))
+      .on('end', () => {
+        resolve(items);
+      })
+      .on('error', reject);
+  });
+};
+
+export const filterOutDirectories = (fileItem: Item): boolean => !fileItem.stats.isDirectory();
+
+export const getMimeType = (filePath: string): string =>
+  mime.lookup(path.basename(filePath)) || 'application/octet-stream';

@@ -1,4 +1,4 @@
-import nodeFileTrace, { NodeFileTraceReasons } from '@zeit/node-file-trace';
+import { nodeFileTrace, NodeFileTraceReasons } from '@zeit/node-file-trace';
 import execa from 'execa';
 import {
   emptyDir,
@@ -21,7 +21,6 @@ import createServerlessConfig from './lib/createServerlessConfig';
 
 export const REQUEST_LAMBDA_CODE_DIR = 'request-lambda';
 
-const pathToPosix = (path: string): string => path.replace(/\\/g, '/');
 const normalizeNodeModules = (path: string): string => path.substring(path.indexOf('node_modules'));
 // Identify /[param]/ in route string
 const isDynamicRoute = (route: string): boolean => /\/\[[^\/]+?\](?=\/|$)/.test(route);

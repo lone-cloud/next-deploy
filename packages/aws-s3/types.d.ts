@@ -20,6 +20,18 @@ type PublicDirectoryCache =
       value?: string;
     };
 
+type SyncStageStateDirectoryOptions = Stage & {
+  nextConfigDir: string;
+  credentials: Credentials;
+  syncTo?: boolean;
+};
+
+type Stage = {
+  bucketName: string;
+  name: string;
+  versioned?: boolean;
+};
+
 type UploadStaticAssetsOptions = {
   bucketName: string;
   nextConfigDir: string;
@@ -39,6 +51,21 @@ type UploadFileOptions = {
   s3Key?: string;
 };
 
+type DownloadFileOptions = {
+  s3Key: string;
+};
+
+type ListFileOptions = {
+  s3Key: string;
+};
+
+type SetVersioningOptions = {
+  versioned?: boolean;
+};
+
 type S3Client = {
   uploadFile: (options: UploadFileOptions) => Promise<S3.ManagedUpload.SendData>;
+  listFiles: (options: ListFileOptions) => Promise<S3.ListObjectsV2Output>;
+  downloadFile: (options: DownloadFileOptions) => Promise<S3.GetObjectOutput>;
+  setVersioning: (options: SetVersioningOptions) => Promise<unknown>;
 };

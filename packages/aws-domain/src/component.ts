@@ -15,7 +15,7 @@ import {
 } from './utils';
 import { AwsDomainInputs } from '../types';
 
-class DomainComponent extends Component {
+class Domain extends Component {
   async default(inputs: AwsDomainInputs): Promise<{ domains: string[] }> {
     this.context.status('Deploying');
 
@@ -177,10 +177,15 @@ class DomainComponent extends Component {
       } else if (domainState.type === 'awsApiGateway') {
         this.context.debug(`Unsupported subdomain type ${domainState.type}`);
       } else if (domainState.type === 'awsCloudFront') {
-        this.context.debug(`Removing domain ${domainState.domain} from CloudFront.`);
-        await removeDomainFromCloudFrontDistribution(clients.cf, domainState);
+        try {
+          this.context.debug(`Removing domain ${domainState.domain} from CloudFront.`);
+          await removeDomainFromCloudFrontDistribution(clients.cf, domainState);
+        } catch (error) {
+          this.context.debug(error.message);
+        }
 
         this.context.debug(`Removing CloudFront DNS records for domain ${domainState.domain}`);
+
         await removeCloudFrontDomainDnsRecords(
           clients.route53,
           domainState.domain,
@@ -191,9 +196,10 @@ class DomainComponent extends Component {
         this.context.debug(`Unsupported subdomain type ${domainState.type}`);
       }
     }
+
     this.state = {};
     await this.save();
   }
 }
 
-export default DomainComponent;
+export default Domain;

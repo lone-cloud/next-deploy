@@ -16,7 +16,7 @@ Effortless deployment for Next.js apps 🚀
   - [GitHub Options](#GitHub-Options)
   - [AWS Options](#AWS-Options)
 - [Advanced Usage](#Advanced-Usage)
-  - [Persisting Deployment State](#Persisting-State)
+  - [Redirecting Domains](#Redirecting-Domains)
   - [CI/CD](#CICD)
 
 ## Getting Started
@@ -31,6 +31,8 @@ Optionally you can also add and run `next deploy` from your Next.js app:
 
 - `yarn add --dev next-deploy`
 - `yarn next-deploy`
+
+You can safely add the `.next-deploy` and `.next-deploy-build` directories to your `.gitignore`.
 
 ## Features
 
@@ -48,15 +50,26 @@ Next Deploy comes with a `next-deploy [argument]` CLI that you can run with `npx
 
 There are currently 5 supported arguments:
 
-- **Default** (default): Runs **Build** followed by **Deploy**.
+- **default** (default): Runs **Build** followed by **Deploy**.
 
-- **Init**: Creates the base next-deploy.config.js configuration for your project.
+- **init**: Creates the base next-deploy.config.js configuration for your project.
 
-- **Build**: Build the application for deployment.
+- **build**: Build the application for deployment.
 
-- **Deploy**: Deploy the built application.
+- **deploy**: Deploy the built application.
 
-- **Remove**: Remove the deployed resources. Note that some resources (such as lambda@edge lambdas need to be cleaned up manually due to a timing constraint).
+- **remove**: Remove the deployed resources. Note that some resources (such as lambda@edge lambdas need to be cleaned up manually due to a timing constraint).
+
+Note how `build` and `deploy` can be run separately. This allows for creating build artifacts that could be deployed at a later time. You may want to publish such build artifacts to your private artifactory for later retrieval and/or analysis. Consider publishing with the following config in your `package.json`:
+
+```javascript
+"files": [
+    ".next/!(cache)", // not needed for deployment and is very large in size
+    ".next-deploy",
+    ".next-deploy-build",
+    "next-deploy.config.js"
+  ]
+```
 
 ## Environment
 
@@ -139,21 +152,21 @@ All engines support the basic options:
 
 | Name          | Type                  | Default | Description                                                                                              |
 | ------------- | --------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| engine        | `"aws"\|"github"`     | `aws`   | The platform to deploy to.                                                                               |
-| debug         | `boolean`             | `false` | Print helpful messages to                                                                                |
-| onPreDeploy   | `() => Promise<void>` | `null`  | A callback that gets called before the deployment.                                                       |
-| onPostDeploy  | `() => Promise<void>` | `null`  | A callback that gets called after the deployment successfully finishes.                                  |
-| onShutdown    | `() => Promise<void>` | `null`  | A callback that gets called after the deployment is shutdown by a INT/QUIT/TERM signal like from ctrl+c. |
 | build         | [`Build`](#Build)     | `{}`    | Build related options.                                                                                   |
-| nextConfigDir | `string`              | `./`    | The directory holding the `next.config.js`.                                                              |
+| debug         | `boolean`             | `false` | Print helpful messages to                                                                                |
 | domain        | `string\|string[]`    | `null`  | The domain to deploy to .                                                                                |
+| engine        | `"aws"\|"github"`     | `aws`   | The platform to deploy to.                                                                               |
+| nextConfigDir | `string`              | `./`    | The directory holding the `next.config.js`.                                                              |
+| onPostDeploy  | `() => Promise<void>` | `null`  | A callback that gets called after the deployment successfully finishes.                                  |
+| onPreDeploy   | `() => Promise<void>` | `null`  | A callback that gets called before the deployment.                                                       |
+| onShutdown    | `() => Promise<void>` | `null`  | A callback that gets called after the deployment is shutdown by a INT/QUIT/TERM signal like from ctrl+c. |
 
 #### Build
 
 | Name | Type       | Default                  | Description                                          |
 | ---- | ---------- | ------------------------ | ---------------------------------------------------- |
-| cmd  | `string`   | `node_modules/.bin/next` | The build command.                                   |
 | args | `string[]` | `['build']`              | A list of arguments to provide to the build command. |
+| cmd  | `string`   | `node_modules/.bin/next` | The build command.                                   |
 | cwd  | `string`   | `./`                     | The current working directory.                       |
 
 ### Github Options
@@ -168,15 +181,16 @@ All engines support the basic options:
 | -------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | bucketName           | `string`                                                   | `*auto generated*`                                                                    | Custom bucket name where static assets are stored.                                                                                                                                                                  |
 | bucketRegion         | `string`                                                   | `us-east-1`                                                                           | Region where you want to host your S3 bucket.                                                                                                                                                                       |
-| publicDirectoryCache | `boolean\|`[`PublicDirectoryCache`](#PublicDirectoryCache) | `true`                                                                                | Customize the public/static directory asset caching policy. Assigning an object lets you customize the caching policy and the types of files being cached. Assigning false disables caching.                        |
-| memory               | `number`                                                   | `512`                                                                                 | The amount of memory that a lambda has access to. Increasing the lambda's memory also increases its CPU allocation. The value must be a multiple of 64 MB.                                                          |
-| timeout              | `number`                                                   | `10`                                                                                  | The amount of time that the lambda allows a function to run before stopping it. The maximum allowed value is 900 seconds.                                                                                           |
-| name                 | `string`                                                   | `*auto generated*`                                                                    | The name of the lambda function.                                                                                                                                                                                    |
-| runtime              | `string`                                                   | `nodejs12.x`                                                                          | The identifier of the lambda's runtime.                                                                                                                                                                             |
-| description          | `string`                                                   | <details>`"*lambda type* handler for the Next CloudFront distribution."`</details>    | A description of the lambda.                                                                                                                                                                                        |
-| policy               | `string`                                                   | <details>`arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`</details> | The arn policy of the lambda.                                                                                                                                                                                       |
-| domainType           | `"www"\|"apex"\|"both"`                                    | `both`                                                                                | Can be one of: "**apex**" - apex domain only, don't create a www subdomain. "**www**" - www domain only, don't create an apex subdomain. "**both**" - create both www and apex domains when either one is provided. |
 | cloudfront           | [`CloudFront`](#CloudFront)                                | `{}`                                                                                  | Additional cloudfront options.                                                                                                                                                                                      |
+| description          | `string`                                                   | <details>`"*lambda type* handler for the Next CloudFront distribution."`</details>    | A description of the lambda.                                                                                                                                                                                        |
+| domainType           | `"www"\|"apex"\|"both"`                                    | `both`                                                                                | Can be one of: "**apex**" - apex domain only, don't create a www subdomain. "**www**" - www domain only, don't create an apex subdomain. "**both**" - create both www and apex domains when either one is provided. |
+| memory               | `number`                                                   | `512`                                                                                 | The amount of memory that a lambda has access to. Increasing the lambda's memory also increases its CPU allocation. The value must be a multiple of 64 MB.                                                          |
+| name                 | `string`                                                   | `*auto generated*`                                                                    | The name of the lambda function.                                                                                                                                                                                    |
+| policy               | `string`                                                   | <details>`arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`</details> | The arn policy of the lambda.                                                                                                                                                                                       |
+| publicDirectoryCache | `boolean\|`[`PublicDirectoryCache`](#PublicDirectoryCache) | `true`                                                                                | Customize the public/static directory asset caching policy. Assigning an object lets you customize the caching policy and the types of files being cached. Assigning false disables caching.                        |
+| runtime              | `string`                                                   | `nodejs12.x`                                                                          | The identifier of the lambda's runtime.                                                                                                                                                                             |
+| stage                | `boolean |`[`Stage`](#Stage)                               | `false`                                                                               | Configure the stage ('dev', 'staging', 'production') of your deployment that will be used to synchronize its deployed state to an S3 bucket..                                                                       |
+| timeout              | `number`                                                   | `10`                                                                                  | The amount of time that the lambda allows a function to run before stopping it. The maximum allowed value is 900 seconds.                                                                                           |
 
 #### PublicDirectoryCache
 
@@ -189,13 +203,21 @@ All engines support the basic options:
 
 | Name                   | Type                                      | Default             | Description                                                                                                                                                 |
 | ---------------------- | ----------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ttl                    | `number`                                  | `0`                 | The amount of time that you want objects to stay in CloudFront's cache before it forwards another request to determine whether the object has been updated. |
-| smoothStreaming        | `boolean`                                 | `false`             | Indicates whether you want to distribute media files in the Microsoft Smooth Streaming format.                                                              |
-| viewerProtocolPolicy   | `string`                                  | `redirect-to-https` | The policy for viewers to access the content.                                                                                                               |
 | fieldLevelEncryptionId | `string`                                  | `""`                | The value of the ID for the field-level encryption configuration that you want to use.                                                                      |
 | forward                | [`Forward`](#Forward)                     | `{}`                | Determines the forwarding configuration                                                                                                                     |
+| smoothStreaming        | `boolean`                                 | `false`             | Indicates whether you want to distribute media files in the Microsoft Smooth Streaming format.                                                              |
+| ttl                    | `number`                                  | `0`                 | The amount of time that you want objects to stay in CloudFront's cache before it forwards another request to determine whether the object has been updated. |
 | viewerCertificate      | [`ViewerCertificate`](#ViewerCertificate) | `{}`                | Determines the SSL/TLS configuration for communicating with viewers.                                                                                        |
+| viewerProtocolPolicy   | `string`                                  | `redirect-to-https` | The policy for viewers to access the content.                                                                                                               |
 | "lambda@edge"          | [`LambdaAtEdge`](#LambdaAtEdge)           | `{}`                | Additional lambda@edge functions.                                                                                                                           |
+
+#### Stage
+
+| Name       | Type      | Default                    | Description                                                             |
+| ---------- | --------- | -------------------------- | ----------------------------------------------------------------------- |
+| bucketName | `string`  | `next-deploy-environments` | The S3 bucket name to sync the deployment stage to.                     |
+| name       | `string`  | `dev`                      | The name of the stage.                                                  |
+| versioned  | `boolean` | `false`                    | Whether the S3 bucket containing the stage's state should be versioned. |
 
 #### Forward
 
@@ -222,15 +244,15 @@ All engines support the basic options:
 
 ## Advanced Usage
 
-### Persisting State
+### Redirecting Domains
 
-TODO
+For AWS deployments, when using the `domainType` option with either `apex` or `domain` values, the automatic redirection from the unsupported domain type will not automatically work, but there are manual one time steps you [outlined here](https://simonecarletti.com/blog/2016/08/redirect-domain-https-amazon-cloudfront/#configuring-the-amazon-s3-static-site-with-redirect). In summary, you will have to create a new S3 bucket and set it up with static website hosting to redirect requests to your supported subdomain type (ex. "www.example.com" or "example.com"). To be able to support HTTPS redirects, you'll need to set up a CloudFront distribution with the S3 redirect bucket as the origin. Finally, you'll need to create an "A" record in Route 53 with your newly created CloudFront distribution as the alias target.
 
 ### CI/CD
 
 Implement [CI/CD](#https://en.wikipedia.org/wiki/CI/CD) in your workflow with Next Deploy by substituting environment variables into your `next-deploy.config.js`.
 
-As an example:
+Consider an advanced configuration example:
 
 ```javascript
 module.exports = {
@@ -240,8 +262,20 @@ module.exports = {
     requestLambda: process.env.MY_APP_REQUEST_LAMBDA_NAME,
   },
   domain: [process.env.MY_APP_SUBDOMAIN, process.env.MY_APP_DOMAIN],
+  stage: {
+    name: process.env.ENVIRONMENT,
+    versioned: true,
+    bucketName: 'next-environments',
+  },
+  cloudfront: {
+    defaults: {
+      'lambda@edge': {
+        'viewer-request': process.env.MY_AUTH_LAMBDA_ARN,
+      },
+    },
+  },
   debug: true,
 };
 ```
 
-TODO
+Note that for AWS deployments, Next Deploy must know the state of your previous deployment, otherwise it will start spinning up new instances. The most important configuration option in the example above is `staging`. It will allow for your deployment state to be persisted in S3 and it will be synced with the locale state at the start of every build. Alternatively, one may backup and restore the state by using the `onPreDeploy` and `onPostDeploy` callbacks.

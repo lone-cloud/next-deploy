@@ -3,7 +3,10 @@ import { writeFileSync } from 'fs';
 
 const NEXT_EXPORT_CMD = ['export'];
 
-const build = async ({ cmd, cwd, args }: BuildOptions, debug?: (message: string) => void) => {
+const build = async (
+  { cmd, cwd, args }: BuildOptions,
+  debug?: (message: string) => void
+): Promise<void> => {
   if (debug) {
     const { stdout: nextVersion } = await execa(cmd, ['--version'], {
       cwd,
