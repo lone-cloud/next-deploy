@@ -23,18 +23,19 @@ const syncStageStateDirectory = async ({
   const stateRootDirectory = path.join(nextConfigDir, STATE_ROOT);
 
   if (syncTo) {
-    const stateRootDirectoryFiles = await readDirectoryFiles(stateRootDirectory);
+    const stateRootDirectoryFiles = await readDirectoryFiles(path.join(stateRootDirectory, stage));
 
     const buildStateRootDirectoryFilesUploads = stateRootDirectoryFiles
       .filter(filterOutDirectories)
-      .map(async (fileItem) => {
-        const s3Key = pathToPosix(path.relative(path.resolve(nextConfigDir), fileItem.path));
-
-        return s3.uploadFile({
-          s3Key: `${stage}/${s3Key}`,
+      .map(async (fileItem) =>
+        s3.uploadFile({
+          s3Key: pathToPosix(path.relative(path.resolve(nextConfigDir), fileItem.path)).replace(
+            `${STATE_ROOT}/`,
+            ''
+          ),
           filePath: fileItem.path,
-        });
-      });
+        })
+      );
 
     return Promise.all([...buildStateRootDirectoryFilesUploads]);
   } else {
@@ -51,7 +52,7 @@ const syncStageStateDirectory = async ({
     for (const file of bucketFiles.Contents || []) {
       if (file.Key) {
         const fileData = await s3.downloadFile({ s3Key: file.Key });
-        files.push({ name: file.Key.replace(`${stage}/`, ''), data: fileData });
+        files.push({ name: path.join(STATE_ROOT, file.Key), data: fileData });
       }
     }
 

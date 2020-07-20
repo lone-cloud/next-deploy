@@ -26,12 +26,6 @@ type SyncStageStateDirectoryOptions = Stage & {
   syncTo?: boolean;
 };
 
-type Stage = {
-  bucketName: string;
-  name: string;
-  versioned?: boolean;
-};
-
 type UploadStaticAssetsOptions = {
   bucketName: string;
   nextConfigDir: string;

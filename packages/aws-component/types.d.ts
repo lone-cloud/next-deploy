@@ -1,4 +1,4 @@
-import { PublicDirectoryCache, Stage } from '@next-deploy/aws-s3/types';
+import { PublicDirectoryCache } from '@next-deploy/aws-s3/types';
 import { CloudFrontInputs } from '@next-deploy/aws-cloudfront/types';
 import { DomainType } from '@next-deploy/aws-domain/types';
 
@@ -15,7 +15,6 @@ type AwsComponentInputs = BaseDeploymentOptions & {
   policy?: string;
   domainType?: DomainType;
   cloudfront?: CloudFrontInputs;
-  stage?: boolean | Stage;
 };
 
 type LambdaType = 'requestLambda' | 'responseLambda';

@@ -65,7 +65,7 @@ export const createCloudFrontDistribution = async (
         Items: [],
       },
       Origins,
-      PriceClass: 'PriceClass_All',
+      PriceClass: inputs.priceClass,
       Enabled: inputs.enabled as boolean,
       HttpVersion: 'http2',
       DefaultCacheBehavior: getDefaultCacheBehavior(Origins.Items[0].Id, inputs.defaults),
@@ -126,12 +126,28 @@ export const updateCloudFrontDistribution = async (
     IfMatch: distributionConfigResponse.ETag,
     DistributionConfig: {
       ...distributionConfigResponse.DistributionConfig,
+      PriceClass: inputs.priceClass,
       Enabled: inputs.enabled as boolean,
       Comment: inputs.comment as string,
       DefaultCacheBehavior: getDefaultCacheBehavior(Origins.Items[0].Id, inputs.defaults),
       Origins,
     },
   };
+
+  const origins = updateDistributionRequest.DistributionConfig.Origins;
+  const existingOriginIds = origins.Items.map((origin) => origin.Id);
+
+  Origins.Items.forEach((inputOrigin) => {
+    const originIndex = existingOriginIds.indexOf(inputOrigin.Id);
+
+    if (originIndex > -1) {
+      // replace origin with new input configuration
+      origins.Items.splice(originIndex, 1, inputOrigin);
+    } else {
+      origins.Items.push(inputOrigin);
+      origins.Quantity += 1;
+    }
+  });
 
   if (CacheBehaviors) {
     updateDistributionRequest.DistributionConfig.CacheBehaviors = CacheBehaviors;

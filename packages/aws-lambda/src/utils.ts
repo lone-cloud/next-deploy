@@ -85,7 +85,6 @@ export const createLambda = async ({
   zipPath,
   bucket,
   role,
-  layer,
 }: AwsLambdaInputs): Promise<{ arn?: string; hash?: string }> => {
   const params: Lambda.Types.CreateFunctionRequest = {
     FunctionName: name,
@@ -101,10 +100,6 @@ export const createLambda = async ({
       Variables: env,
     },
   };
-
-  if (layer && layer.arn) {
-    params.Layers = [layer.arn];
-  }
 
   if (bucket) {
     params.Code.S3Bucket = bucket;
@@ -128,7 +123,6 @@ export const updateLambdaConfig = async ({
   env,
   description,
   role,
-  layer,
 }: AwsLambdaInputs): Promise<{ arn?: string; hash?: string }> => {
   const functionConfigParams: Lambda.Types.UpdateFunctionConfigurationRequest = {
     FunctionName: name,
@@ -142,10 +136,6 @@ export const updateLambdaConfig = async ({
       Variables: env,
     },
   };
-
-  if (layer && layer.arn) {
-    functionConfigParams.Layers = [layer.arn];
-  }
 
   const res = await (lambda as Lambda).updateFunctionConfiguration(functionConfigParams).promise();
 
@@ -284,4 +274,20 @@ export const pack = async (code: string, shims = [], packDeps = true): Promise<u
   const outputFilePath = path.join(tmpdir(), `${Math.random().toString(36).substring(6)}.zip`);
 
   return packDir(code, outputFilePath, shims, exclude);
+};
+
+// TODO: remove me, this is a duplicate of aws-component's load
+export const load = async <T>(path: string, that: any, name?: string): Promise<T> => {
+  const EngineComponent = await import(path);
+  const component = new EngineComponent.default(
+    `${that.id}.${name || EngineComponent.default.name}`,
+    that.context.instance
+  );
+  await component.init();
+
+  component.context.log = () => ({});
+  component.context.status = () => ({});
+  component.context.output = () => ({});
+
+  return component;
 };

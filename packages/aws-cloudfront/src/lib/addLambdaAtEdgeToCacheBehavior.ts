@@ -11,6 +11,7 @@ const triggersAllowedBody = ['viewer-request', 'origin-request'];
 
 const makeCacheItem = (eventType: string, lambdaConfig: string | LambdaAtEdgeConfig) => {
   let arn, includeBody;
+
   if (typeof lambdaConfig === 'string') {
     arn = lambdaConfig;
     includeBody = triggersAllowedBody.includes(eventType);
@@ -37,12 +38,18 @@ const addLambdaAtEdgeToCacheBehavior = (cacheBehavior: any, lambdaAtEdge: Lambda
       );
     }
 
-    cacheBehavior.LambdaFunctionAssociations.Items.push(
-      makeCacheItem(eventType, lambdaAtEdge[eventType])
-    );
+    const haveValidConfig =
+      //@ts-ignore
+      typeof lambdaAtEdge[eventType] === 'string' || lambdaAtEdge[eventType]?.arn;
 
-    cacheBehavior.LambdaFunctionAssociations.Quantity =
-      cacheBehavior.LambdaFunctionAssociations.Quantity + 1;
+    if (haveValidConfig) {
+      cacheBehavior.LambdaFunctionAssociations.Items.push(
+        makeCacheItem(eventType, lambdaAtEdge[eventType])
+      );
+
+      cacheBehavior.LambdaFunctionAssociations.Quantity =
+        cacheBehavior.LambdaFunctionAssociations.Quantity + 1;
+    }
   });
 };
 

@@ -1,4 +1,5 @@
 import { Lambda } from 'aws-sdk';
+import { Role } from '@next-deploy/aws-iam-role/types';
 
 export type AwsLambdaInputs = {
   name: string;
@@ -12,18 +13,9 @@ export type AwsLambdaInputs = {
   runtime: string;
   env: Record<string, string>;
   region: string;
-  role: Resource;
+  role: Role;
   arn?: string;
   zipPath: string;
   hash?: string;
-  layer?: Resource;
   lambda?: Lambda;
-};
-
-type Resource = {
-  policy?: {
-    arn: string;
-  };
-  service?: string[];
-  arn?: string;
 };

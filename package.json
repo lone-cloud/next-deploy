@@ -1,17 +1,19 @@
 {
   "name": "next-deploy",
-  "version": "0.3.1",
+  "version": "1.0.0-alpha.0",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
     "next",
     "deploy",
     "nextjs",
+    "serverless",
     "aws",
     "github",
     "lambda",
+    "lambda@edge",
     "cloudfront",
-    "github-pages"
+    "gh-pages"
   ],
   "scripts": {
     "dev": "lerna run --parallel build:watch",
@@ -33,8 +35,6 @@
   },
   "homepage": "https://github.com/nidratech/next-deploy#readme",
   "dependencies": {
-    "@serverless/aws-iam-role": "^1.0.0",
-    "@serverless/aws-lambda-layer": "^1.0.0",
     "@serverless/core": "^1.1.2",
     "@zeit/node-file-trace": "^0.8.0",
     "ansi-escapes": "^4.3.1",
@@ -79,7 +79,7 @@
     "@types/webpack": "^4.41.21",
     "@typescript-eslint/eslint-plugin": "^3.6.1",
     "@typescript-eslint/parser": "^3.6.1",
-    "eslint": "^7.4.0",
+    "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.2.5",

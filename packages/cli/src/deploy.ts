@@ -6,14 +6,15 @@ import Context from './context';
 import { createBaseConfig } from './utils';
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
+  const options: BaseDeploymentOptions = await import(deployConfigPath);
   const {
     debug = false,
     engine = DEFAULT_ENGINE,
     onPreDeploy,
     onPostDeploy,
     onShutdown,
-    ...componentOptions
-  }: BaseDeploymentOptions = await import(deployConfigPath);
+    stage,
+  } = options;
   const engineIndex = SUPPORTED_ENGINES.findIndex(({ type }) => type === engine);
   const isInit = methodName === 'init';
 
@@ -50,7 +51,7 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
 
   const context = new Context({
     root: process.cwd(),
-    stateRoot: path.join(process.cwd(), STATE_ROOT),
+    stateRoot: path.join(process.cwd(), STATE_ROOT, stage?.name || 'local'),
     debug,
     entity: engine.toUpperCase(),
     message: method.action,
@@ -67,7 +68,7 @@ const deploy = async (deployConfigPath: string, methodName = 'default'): Promise
     context.metrics.lastDebugTime = new Date().getTime();
     context.statusEngineStart();
 
-    const outputs = await component[methodName](componentOptions);
+    const outputs = await component[methodName](options);
 
     context.renderOutputs(outputs);
 

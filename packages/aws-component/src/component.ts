@@ -10,7 +10,6 @@ import { SubDomain } from '@next-deploy/aws-domain/types';
 import AwsLambda from '@next-deploy/aws-lambda';
 import { AwsLambdaInputs } from '@next-deploy/aws-lambda/types';
 import { OriginRequestHandlerManifest as BuildManifest } from '@next-deploy/aws-lambda-builder/types';
-import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { Origin } from '@next-deploy/aws-cloudfront/types';
 import { getDomains, load } from './utils';
 import { DeploymentResult, AwsComponentInputs, LambdaType } from '../types';
@@ -136,17 +135,39 @@ class Aws extends Component {
 
     const nextConfigPath = nextConfigDir ? resolve(nextConfigDir) : process.cwd();
     const nextStaticPath = nextStaticDir ? resolve(nextStaticDir) : nextConfigPath;
-    const customCloudFrontConfig: Record<string, any> = cloudfrontInput || {};
+    const {
+      defaults: cloudFrontDefaultsInputs,
+      origins: cloudFrontOriginsInputs,
+      priceClass: cloudFrontPriceClassInputs,
+      ...cloudFrontOtherInputs
+    } = cloudfrontInput || {};
+    const cloudFrontDefaults = cloudFrontDefaultsInputs || {};
     const calculatedBucketRegion = bucketRegion || 'us-east-1';
-    const [
-      bucket,
-      stageBucket,
-      cloudfront,
-      requestEdgeLambda,
-      defaultBuildManifest,
-    ] = await Promise.all([
+    const stageBucket = await load<AwsS3>('@next-deploy/aws-s3', this, 'StageStateStorage');
+    const stageStateBucketName =
+      (typeof stage !== 'boolean' && stage?.bucketName) || 'next-deploy-environments';
+    const isSyncStateVersioned = typeof stage !== 'boolean' && stage?.versioned;
+    const stageName = stage?.name || 'local';
+    const canSyncStageState = stageName !== 'local';
+
+    if (canSyncStageState) {
+      await stageBucket.default({
+        accelerated: true,
+        name: stageStateBucketName,
+        region: calculatedBucketRegion,
+      });
+
+      await AwsS3.syncStageStateDirectory({
+        name: stageName,
+        bucketName: stageStateBucketName,
+        versioned: isSyncStateVersioned,
+        nextConfigDir: nextConfigPath,
+        credentials: this.context.credentials.aws,
+      });
+    }
+
+    const [bucket, cloudfront, requestEdgeLambda, defaultBuildManifest] = await Promise.all([
       load<AwsS3>('@next-deploy/aws-s3', this, 'StaticStorage'),
-      load<AwsS3>('@next-deploy/aws-s3', this, 'StageStateStorage'),
       load<AwsCloudFront>('@next-deploy/aws-cloudfront', this),
       load<AwsLambda>('@next-deploy/aws-lambda', this, 'RequestEdgeLambda'),
       this.readRequestLambdaBuildManifest(nextConfigPath),
@@ -157,24 +178,6 @@ class Aws extends Component {
       region: calculatedBucketRegion,
     });
     const bucketUrl = `http://${bucketOutputs.name}.s3.${calculatedBucketRegion}.amazonaws.com`;
-    const stageStateBucketName =
-      (typeof stage !== 'boolean' && stage?.bucketName) || 'next-deploy-environments';
-
-    if (stage) {
-      const stageStateBucketOutputs = await stageBucket.default({
-        accelerated: true,
-        name: stageStateBucketName,
-        region: calculatedBucketRegion,
-      });
-
-      await AwsS3.syncStageStateDirectory({
-        name: (typeof stage !== 'boolean' && stage?.name) || 'dev',
-        bucketName: stageStateBucketOutputs.name,
-        versioned: typeof stage !== 'boolean' && stage.versioned,
-        nextConfigDir: nextConfigPath,
-        credentials: this.context.credentials.aws,
-      });
-    }
 
     await AwsS3.uploadStaticAssets({
       bucketName: bucketOutputs.name,
@@ -202,10 +205,9 @@ class Aws extends Component {
 
     // parse origins from inputs
     let inputOrigins: any = [];
-    if (cloudfrontInput?.origins) {
-      const origins = cloudfrontInput.origins as string[];
+    if (cloudFrontOriginsInputs) {
+      const origins = cloudFrontOriginsInputs as string[];
       inputOrigins = origins.map(expandRelativeUrls);
-      delete cloudfrontInput.origins;
     }
 
     const cloudFrontOrigins = [
@@ -262,7 +264,7 @@ class Aws extends Component {
       memory: getLambdaInputValue('memory', 'requestLambda', 512) as number,
       timeout: getLambdaInputValue('timeout', 'requestLambda', 10) as number,
       runtime: getLambdaInputValue('runtime', 'requestLambda', 'nodejs12.x') as string,
-      name: getLambdaInputValue('name', 'requestLambda', undefined) as string | undefined,
+      name: getLambdaInputValue('name', 'requestLambda', undefined) as string,
       description: getLambdaInputValue(
         'description',
         'requestLambda',
@@ -272,18 +274,12 @@ class Aws extends Component {
 
     const requestEdgeLambdaOutputs = await requestEdgeLambda.default(defaultEdgeLambdaInput);
     const requestEdgeLambdaPublishOutputs = await requestEdgeLambda.publishVersion();
-    let defaultCloudfrontInputs = {} as PathPatternConfig;
-
-    if (cloudfrontInput && cloudfrontInput.defaults) {
-      defaultCloudfrontInputs = cloudfrontInput.defaults;
-      delete cloudfrontInput.defaults;
-    }
 
     // validate that the custom config paths match generated paths in the manifest
-    this.validatePathPatterns(Object.keys(customCloudFrontConfig), defaultBuildManifest);
+    this.validatePathPatterns(Object.keys(cloudFrontOtherInputs), defaultBuildManifest);
 
     // add any custom cloudfront configuration - this includes overrides for _next, static and api
-    Object.entries(customCloudFrontConfig).map(([path, config]) => {
+    Object.entries(cloudFrontOtherInputs).map(([path, config]) => {
       const edgeConfig = {
         ...(config['lambda@edge'] || {}),
       };
@@ -319,16 +315,17 @@ class Aws extends Component {
     };
 
     const defaultLambdaAtEdgeConfig = {
-      ...(defaultCloudfrontInputs['lambda@edge'] || {}),
+      ...(cloudFrontDefaults['lambda@edge'] || {}),
     };
+
     const cloudFrontOutputs = await cloudfront.default({
       defaults: {
         ttl: 0,
-        ...defaultCloudfrontInputs,
+        ...cloudFrontDefaults,
         forward: {
           cookies: 'all',
           queryString: true,
-          ...defaultCloudfrontInputs.forward,
+          ...cloudFrontDefaults.forward,
         },
         allowedHttpMethods: ['HEAD', 'DELETE', 'POST', 'GET', 'OPTIONS', 'PUT', 'PATCH'],
         'lambda@edge': {
@@ -338,6 +335,9 @@ class Aws extends Component {
         compress: true,
       },
       origins: cloudFrontOrigins,
+      ...(cloudFrontPriceClassInputs && {
+        priceClass: cloudFrontPriceClassInputs,
+      }),
     });
 
     let appUrl = cloudFrontOutputs.url;
@@ -358,16 +358,16 @@ class Aws extends Component {
           [subdomain]: cloudFrontOutputs as SubDomain,
         },
         domainType: domainType || 'both',
-        defaultCloudfrontInputs,
+        defaultCloudfrontInputs: cloudFrontDefaults,
       });
       appUrl = domainOutputs.domains[0];
     }
 
-    if (stage) {
+    if (canSyncStageState) {
       await AwsS3.syncStageStateDirectory({
-        name: (typeof stage !== 'boolean' && stage?.name) || 'dev',
+        name: stageName,
         bucketName: stageStateBucketName,
-        versioned: typeof stage !== 'boolean' && stage.versioned,
+        versioned: isSyncStateVersioned,
         nextConfigDir: nextConfigPath,
         credentials: this.context.credentials.aws,
         syncTo: true,

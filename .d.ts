@@ -1,7 +1,6 @@
 declare module '@serverless/core' {
   import { Credentials } from 'aws-sdk';
   export class Component {
-    load(modulePath: string, moduleName?: string): any;
     save(): void;
     state: any;
     context: {
@@ -60,10 +59,17 @@ type BaseDeploymentOptions = {
   build?: BuildOptions;
   nextConfigDir?: string;
   domain?: string | string[];
+  stage?: Stage;
 };
 
 type BuildOptions = {
   cwd?: string;
   cmd: string;
   args: string[];
+};
+
+type Stage = {
+  bucketName: string;
+  name: string;
+  versioned?: boolean;
 };

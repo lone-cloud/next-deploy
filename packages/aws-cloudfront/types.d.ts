@@ -1,9 +1,11 @@
 export type CloudFrontInputs = {
+  distributionId?: string;
   region?: string;
   enabled?: boolean;
   comment?: string;
   origins: string[] | Origin[];
   defaults?: PathPatternConfig;
+  priceClass?: 'PriceClass_All' | 'PriceClass_200' | 'PriceClass_100';
 };
 
 type PathPatternConfig = {

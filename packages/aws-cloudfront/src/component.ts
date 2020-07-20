@@ -30,6 +30,11 @@ class CloudFront extends Component {
     inputs.enabled = inputs.enabled === false ? false : true;
     inputs.comment =
       inputs.comment === null || inputs.comment === undefined ? '' : String(inputs.comment);
+    inputs.priceClass = ['PriceClass_All', 'PriceClass_200', 'PriceClass_100'].includes(
+      inputs.priceClass || ''
+    )
+      ? inputs.priceClass
+      : 'PriceClass_All';
 
     this.context.debug(
       `Starting deployment of CloudFront distribution to the ${inputs.region} region.`
@@ -45,12 +50,15 @@ class CloudFront extends Component {
       region: inputs.region,
     });
 
+    this.state.id = inputs.distributionId || this.state.id;
+
     if (this.state.id) {
       if (
         !equals(this.state.origins, inputs.origins) ||
         !equals(this.state.defaults, inputs.defaults) ||
         !equals(this.state.enabled, inputs.enabled) ||
-        !equals(this.state.comment, inputs.comment)
+        !equals(this.state.comment, inputs.comment) ||
+        !equals(this.state.priceClass, inputs.priceClass)
       ) {
         this.context.debug(`Updating CloudFront distribution of ID ${this.state.id}.`);
         this.state = await updateCloudFrontDistribution(cf, s3, this.state.id, inputs);
@@ -63,8 +71,10 @@ class CloudFront extends Component {
     this.state.region = inputs.region;
     this.state.enabled = inputs.enabled;
     this.state.comment = inputs.comment;
+    this.state.priceClass = inputs.priceClass;
     this.state.origins = inputs.origins;
     this.state.defaults = inputs.defaults;
+
     await this.save();
 
     this.context.debug(`CloudFront deployed successfully with URL: ${this.state.url}.`);

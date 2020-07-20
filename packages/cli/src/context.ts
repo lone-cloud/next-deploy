@@ -10,6 +10,7 @@ import { utils } from '@serverless/core';
 import { ContextMetrics, ContextConfig } from '../types';
 
 const { red, green, blue, dim: grey } = chalk;
+const STATE_ROOT = '.next-deploy';
 
 class Context {
   root: string;
@@ -21,26 +22,24 @@ class Context {
   outputs: Record<string, unknown>;
   metrics: ContextMetrics;
 
-  constructor(config: ContextConfig) {
-    this.root = path.resolve(config.root) || process.cwd();
-    this.stateRoot = config.stateRoot
-      ? path.resolve(config.stateRoot)
-      : path.join(this.root, '.next-deploy');
+  constructor({ root, stateRoot, credentials, debug, entity, message }: ContextConfig) {
+    this.root = path.resolve(root) || process.cwd();
+    this.stateRoot = stateRoot ? path.resolve(stateRoot) : path.join(this.root, STATE_ROOT);
 
-    this.credentials = config.credentials || {};
-    this.debugMode = config.debug || false;
+    this.credentials = credentials || {};
+    this.debugMode = debug || false;
     this.state = { id: utils.randomId() };
     this.id = this.state.id as string;
     this.outputs = {};
 
     this.metrics = {
-      entity: config.entity || 'Components',
+      entity: entity || 'Component',
       lastDebugTime: undefined,
       useTimer: true,
       seconds: 0,
       status: {
         running: false,
-        message: config.message || 'Running',
+        message: message || 'Running',
         loadingDots: '',
         loadingDotCount: 0,
       },

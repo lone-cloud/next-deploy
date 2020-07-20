@@ -140,6 +140,8 @@ const handler = ({
   req.method = request.method;
   req.rawHeaders = [];
   req.headers = {};
+  // @ts-ignore
+  req.connection = {};
 
   if (request.querystring) {
     req.url = `${req.url}?${request.querystring}`;

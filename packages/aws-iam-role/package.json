@@ -1,5 +1,5 @@
 {
-  "name": "@next-deploy/aws-lambda",
+  "name": "@next-deploy/aws-iam-role",
   "version": "4.2.0",
   "license": "MIT",
   "main": "dist/component.js",
@@ -9,8 +9,5 @@
     "build:watch": "yarn compile -w",
     "clean": "rm -rf ./dist",
     "compile": "tsc -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "@next-deploy/aws-iam-role": "link:../aws-iam-role"
   }
 }
