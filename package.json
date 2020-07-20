@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -23,7 +23,7 @@
     "postinstall": "cd packages/aws-component && npx yarn --no-lockfile && cd ../aws-domain && npx yarn --no-lockfile && cd ../aws-lambda && npx yarn --no-lockfile && cd ../aws-lambda-builder && npx yarn --no-lockfile && cd ../cli && npx yarn --no-lockfile"
   },
   "bin": {
-    "next-deploy": "./packages/cli/dist/index.js"
+    "next-deploy": "./packages/cli/bin/next-deploy"
   },
   "repository": {
     "type": "git",
