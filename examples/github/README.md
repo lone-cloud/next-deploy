@@ -2,7 +2,7 @@ Deployments to [GitHub Pages](#https://pages.github.com/) work strictly for stat
 
 An up-to-date Static-Site Generation implementation of https://www.nidratech.com and its deployment using Next Deploy can be found at: https://github.com/nidratech/nidratech.com
 
-The key part is the next.config.js configuration:
+The key part is its `next.config.js` configuration:
 
 ```javascript
 module.exports = {
