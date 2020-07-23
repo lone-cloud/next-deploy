@@ -6,13 +6,10 @@ import Context from './context';
 import { createBaseConfig } from './utils';
 
 const deploy = async (deployConfigPath: string, methodName = 'default'): Promise<void> => {
-  let options: BaseDeploymentOptions;
+  let options: BaseDeploymentOptions = {};
   try {
     options = await import(deployConfigPath);
-  } catch (e) {
-    console.error(chalk.red(`❌ Couldn't find the Next.js config at ${deployConfigPath}`));
-    process.exit(1);
-  }
+  } catch (e) {}
 
   const {
     debug = false,

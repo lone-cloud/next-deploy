@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 
 import { DEPLOY_CONFIG_NAME } from './config';
 
-export const createBaseConfig = (deployConfigPath: string, displayWarning?: boolean) => {
+export const createBaseConfig = (deployConfigPath: string, displayWarning?: boolean): void => {
   const configPathExists = fs.existsSync(deployConfigPath);
 
   if (displayWarning && configPathExists) {
@@ -14,11 +14,11 @@ export const createBaseConfig = (deployConfigPath: string, displayWarning?: bool
     fs.writeFileSync(
       deployConfigPath,
       `// for more configurable options see: https://github.com/nidratech/next-deploy#configuration-options
-      module.exports = {
-        engine: 'aws',
-        debug: true,
-      };
-      `
+module.exports = {
+  engine: 'aws',
+  debug: true,
+};
+`
     );
   }
 };
