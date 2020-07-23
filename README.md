@@ -20,6 +20,7 @@ Effortless deployment to AWS and GitHub Pages for Next.js apps 🚀
   - [Redirecting Domains](#Redirecting-Domains)
   - [Deployment State](#Deployment-State)
   - [CI/CD](#CICD)
+- [Examples](#Examples)
 
 ## Getting Started
 
@@ -150,7 +151,7 @@ You will need the following permissions:
 
 ### GitHub
 
-No specific environment configuration is necessary. By default, your app will be built and [exported](#https://nextjs.org/docs/advanced-features/static-html-export) to the `gh-pages` branch.
+No specific environment configuration is necessary. By default, your app will be built and [exported](https://nextjs.org/docs/advanced-features/static-html-export) to the `gh-pages` branch.
 
 ## Configuration Options
 
@@ -268,7 +269,7 @@ When working on a team or trying to implement [CI/CD](#CICD) it is advisable to 
 
 ### CI/CD
 
-Implement [CI/CD](#https://en.wikipedia.org/wiki/CI/CD) in your workflow with Next Deploy by substituting environment variables into your `next-deploy.config.js`.
+Implement [CI/CD](https://en.wikipedia.org/wiki/CI/CD) in your workflow with Next Deploy by substituting environment variables into your `next-deploy.config.js`.
 
 Consider an advanced configuration example:
 
@@ -298,4 +299,8 @@ module.exports = {
 
 The most important configuration option in the example above is `stage`. It will allow for the deployment state to be persisted in S3 and it will be synced with the locale state at the start of every build.
 
-While implementing CI/CD in your project, consider following the [latest Next.js guidelines for storing](#https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables) and loading the environment variables in `.env*` files.
+While implementing CI/CD in your project, consider following the [latest Next.js guidelines for storing](https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables) and loading the environment variables in `.env*` files.
+
+## Examples
+
+Check out the two examples for AWS and GitHub in the [examples folder](/examples) to get a sense of what the implementation will entail and how it will run when deployed.
