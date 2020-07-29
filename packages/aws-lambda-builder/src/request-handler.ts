@@ -19,7 +19,8 @@ const addS3HostHeader = (req: CloudFrontRequest, s3DomainName: string): void => 
 };
 const isDataRequest = (uri: string): boolean => uri.startsWith('/_next/data');
 const isApiRequest = (uri: string): boolean => uri.startsWith('/api');
-const normalizeUri = (uri: string): string => (uri === '/' ? '/index' : uri);
+const getUriPageName = (uri: string): string => (uri === '/' ? '/index' : uri);
+const getUriKey = (uri: string): string => (uri === '/index' ? '/' : uri);
 const normalizeS3OriginDomain = (s3Origin: CloudFrontS3Origin): string => {
   if (s3Origin.region === 'us-east-1') {
     return s3Origin.domainName;
@@ -78,12 +79,12 @@ export const handler = async (
   event: OriginRequestEvent
 ): Promise<CloudFrontResultResponse | CloudFrontRequest> => {
   const { request } = event.Records[0].cf;
-  const uri = normalizeUri(request.uri);
+  const uriKey = getUriKey(request.uri);
   const manifest: OriginRequestHandlerManifest = Manifest;
   const prerenderManifest: PrerenderManifestType = PrerenderManifest;
   const { pages, publicFiles } = manifest;
-  const isStaticPage = pages.html.nonDynamic[uri];
-  const isPublicFile = publicFiles[uri];
+  const isStaticPage = pages.html.nonDynamic[uriKey];
+  const isPublicFile = publicFiles[uriKey];
   const isPrerenderedPage = prerenderManifest.routes[request.uri]; // prerendered pages are also static pages like "pages.html" above, but are defined in the prerender-manifest
   const origin = request.origin as CloudFrontOrigin;
   const s3Origin = origin.s3 as CloudFrontS3Origin;
@@ -98,13 +99,13 @@ export const handler = async (
     addS3HostHeader(request, normalizedS3DomainName);
 
     if (isHTMLPage) {
-      request.uri = `${uri}.html`;
+      request.uri = `${getUriPageName(uriKey)}.html`;
     }
 
     return request;
   }
 
-  const pagePath = router(manifest)(uri);
+  const pagePath = router(manifest)(uriKey);
 
   if (!pagePath) {
     return {
@@ -123,9 +124,9 @@ export const handler = async (
   const page = require(`./${pagePath}`);
   const { req, res, responsePromise } = lambdaAtEdgeCompat(event.Records[0].cf);
 
-  if (isApiRequest(uri)) {
+  if (isApiRequest(uriKey)) {
     page.default(req, res);
-  } else if (isDataRequest(uri)) {
+  } else if (isDataRequest(uriKey)) {
     const { renderOpts } = await page.renderReqToHTML(req, res, 'passthrough');
 
     res.setHeader('Content-Type', 'application/json');
