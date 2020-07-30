@@ -48,7 +48,7 @@ Next Deploy strives to support the latest
 - ✔ multi-environment support
 - ⚠ getStaticPaths with fallback
 - ⚠ preview mode
-- ⚠ incremental static regeneration (beta)
+- ⚠ incremental static regeneration
 
 ## Background
 

@@ -1,6 +1,6 @@
 {
   "name": "next-deploy",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Effortless deployment for Next.js apps 🚀",
   "author": "Nidratech Ltd. <egor@nidratech.com>",
   "keywords": [
@@ -39,7 +39,7 @@
     "@zeit/node-file-trace": "^0.8.1",
     "ansi-escapes": "^4.3.1",
     "archiver": "^5.0.0",
-    "aws-sdk": "^2.722.0",
+    "aws-sdk": "^2.723.0",
     "chalk": "^4.1.0",
     "execa": "^4.0.3",
     "figures": "^3.2.0",
@@ -72,7 +72,7 @@
     "@types/mime-types": "^2.1.0",
     "@types/node": "^14.0.27",
     "@types/path-to-regexp": "^1.7.0",
-    "@types/ramda": "^0.27.12",
+    "@types/ramda": "^0.27.13",
     "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.8",
     "@types/strip-ansi": "^5.2.1",

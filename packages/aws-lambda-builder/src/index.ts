@@ -278,6 +278,9 @@ class Builder {
 
       const subprocess = execa(cmd, args, {
         cwd,
+        env: {
+          NODE_OPTIONS: '--max_old_space_size=3000',
+        },
       });
 
       if (debug && subprocess.stdout) {
