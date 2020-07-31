@@ -214,13 +214,17 @@ const handler = ({
 
   const responsePromise = new Promise<CloudFrontResultResponse>((resolve) => {
     res.end = (text: any) => {
+      if (res.finished === true) {
+        return;
+      }
+
+      res.finished = true;
+
       if (text) res.write(text);
 
       if (!res.statusCode) {
         res.statusCode = 200;
       }
-
-      res.finished = true;
 
       if (response.body) {
         response.bodyEncoding = 'base64';
