@@ -11,23 +11,19 @@ import {
   readFile,
 } from 'fs-extra';
 import { join, resolve, sep, extname, relative, basename } from 'path';
-import { pathToRegexp } from 'path-to-regexp';
 
 import getAllFiles from './lib/getAllFilesInDirectory';
 import { getSortedRoutes } from './lib/sortedRoutes';
 import { OriginRequestHandlerManifest } from '../types';
-import expressifyDynamicRoute from './lib/expressifyDynamicRoute';
 import createServerlessConfig from './lib/createServerlessConfig';
+import {
+  expressifyDynamicRoute,
+  normalizeNodeModules,
+  isDynamicRoute,
+  pathToRegexStr,
+} from './utils';
 
 export const REQUEST_LAMBDA_CODE_DIR = 'request-lambda';
-
-const normalizeNodeModules = (path: string): string => path.substring(path.indexOf('node_modules'));
-// Identify /[param]/ in route string
-const isDynamicRoute = (route: string): boolean => /\/\[[^\/]+?\](?=\/|$)/.test(route);
-const pathToRegexStr = (path: string): string =>
-  pathToRegexp(path)
-    .toString()
-    .replace(/\/(.*)\/\i/, '$1');
 
 const defaultBuildOptions = {
   args: [],
@@ -205,6 +201,7 @@ class Builder {
       if (isHtmlPage(pageFile)) {
         if (dynamicRoute) {
           const route = expressRoute as string;
+
           htmlPages.dynamic[route] = {
             file: pageFile,
             regex: pathToRegexStr(route),
