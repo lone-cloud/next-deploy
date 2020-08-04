@@ -4,7 +4,7 @@ import { utils } from '@serverless/core';
 import { PathPatternConfig } from '@next-deploy/aws-cloudfront/types';
 import { AwsDomainInputs, SubDomain, DomainType } from '../types';
 
-const DEFAULT_MINIMUM_PROTOCOL_VERSION = 'TLSv1.2_2018';
+const DEFAULT_MINIMUM_PROTOCOL_VERSION = 'TLSv1.2_2019';
 const HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2'; // this is a constant that you can get from here https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html
 
 /**
