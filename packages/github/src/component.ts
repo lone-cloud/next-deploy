@@ -46,7 +46,7 @@ class GithubComponent extends Component {
       outputs.appUrl = `https://${computedDomain}`;
     }
 
-    const publishPromise = new Promise((resolve, reject) => {
+    const publishPromise = new Promise<void>((resolve, reject) => {
       publish(
         'out',
         { message: 'Next Deployment Update', dotfiles: true, ...publishOptions },
@@ -69,7 +69,7 @@ class GithubComponent extends Component {
     await emptyDir('out');
     writeFileSync('out/empty', '');
 
-    const publishPromise = new Promise((resolve, reject) => {
+    const publishPromise = new Promise<void>((resolve, reject) => {
       publish('out', { message: 'Next Deployment Removal', remove: '*' }, (err) => {
         if (err) {
           return reject(err);
